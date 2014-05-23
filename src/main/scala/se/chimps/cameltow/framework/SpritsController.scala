@@ -11,6 +11,9 @@ trait SpritsController extends Routing {
   def apply()
 }
 
+/**
+ * Kind of a basetrait for the framework and the controllers.
+ */
 trait Routing extends Logging {
   protected def get(path:String, action:BasicAction) = {
     logger.info("GET handler added to path: {}.", path)
