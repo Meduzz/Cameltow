@@ -11,9 +11,7 @@ trait DIBase {
 
   def instance[T>:K, K](clazz:Class[K]):T
 
-  def injectable(jsr303:Class[_]):Unit
-
-  protected def registerLifecycle(lc:Lifecycle):Unit = {
+  def registerLifecycle(lc:Lifecycle):Unit = {
     lifecycle :+ mutable.Seq(lc)
   }
 }

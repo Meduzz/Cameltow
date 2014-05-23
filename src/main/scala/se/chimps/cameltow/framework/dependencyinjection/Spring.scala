@@ -13,12 +13,8 @@ trait Spring extends DIBase {
     spring.scan(packages)
   }
 
-  override def injectable(jsr303:Class[_]):Unit = {
-    spring.register(jsr303)
-
-    if (jsr303.isInstanceOf[Lifecycle]) {
-      registerLifecycle(spring.getBean(jsr303).asInstanceOf[Lifecycle])
-    }
+  def registerSpringConfiguration(configuration:Class[_]):Unit = {
+    spring.register(configuration)
   }
 
   override def instance[T >: K, K](clazz: Class[K]): T = spring.getBean(clazz)
