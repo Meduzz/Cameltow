@@ -1,124 +1,121 @@
 package se.chimps.cameltow.framework
 
 import se.chimps.cameltow.framework.parsing.Decoder
+import se.chimps.cameltow.templates.Template
 
 /**
  * Created by meduzz on 27/04/14.
- * TODO rework so starters (Ok etc) works a bit smarter and triggers different responsbuilders depending on what they are sent. Like Entities for REST style and Template for Html style.
  */
 trait ResponseBuilder {
-  def statusCode:Int
-  var headers:Map[String, String] = Map()
+  protected def statusCode:Int
+
+  protected var headers:Map[String, String] = Map()
 
   protected def setHeader(key:String, value:String) = {
     headers = headers + (key -> value)
   }
 
   def withHeader(key:String, value:String):ResponseBuilder
+
   def build():Response
 }
 
 case class ResponseImpl(statusCode:Int, headers:Map[String, String], body:Option[Array[Byte]]) extends Response
 
 object ResponseBuilders {
+  type Link = String
+
   // TODO add appropriate logging to all responses.
-  object RestResponseBuilder {
 
-    trait RESTResponseBuilder extends ResponseBuilder {
-      def withEntity[T](entity:T)(implicit decoder:Decoder[T]):RESTResponseBuilder
-      def asJSON:RESTResponseBuilder
-      def asXML:RESTResponseBuilder
-    }
+  object Ok {
+    // REST
+    def apply(statusCode:Int = 200):RESTResponseBuilder = new RESTResponseBuilderImpl(statusCode)
+    def apply[T](entity:T, statusCode:Int = 200)(implicit decoder:Decoder[T]):RESTResponseBuilder = new RESTResponseBuilderImpl(decoder(entity), statusCode)
 
-    private class RESTResponseBuilderImpl(override val statusCode:Int) extends RESTResponseBuilder{
-      var body:Option[Array[Byte]] = None
-
-      override def asJSON:RESTResponseBuilder = {
-        headers = headers ++ Map[String, String]("Content-Type" -> "application/json")
-        this
-      }
-
-      override def withEntity[T](entity: T)(implicit decoder: Decoder[T]): RESTResponseBuilder = {
-        body = decoder(entity)
-        this
-      }
-
-      override def asXML: RESTResponseBuilder = {
-        headers = headers ++ Map[String, String]("Content-Type" -> "application/xml")
-        this
-      }
-
-      override def withHeader(key: String, value: String):RESTResponseBuilder = {
-        setHeader(key, value)
-        this
-      }
-
-      override def build(): Response = {
-        new ResponseImpl(statusCode, headers, body)
-      }
-    }
-
-    object Ok {
-      def apply(statusCode: Int = 200): RESTResponseBuilder = new RESTResponseBuilderImpl(statusCode)
-    }
-
-    object Created {
-      def apply(location: String, statusCode: Int = 201): Response = Redirect(location, statusCode)
-    }
-
-    object Deleted {
-      def apply(statusCode:Int=204):Response = new ResponseImpl(statusCode, Map(), None)
-    }
+    //Html
+    def apply:HTMLResponseBuilder = new HTMLResponseBuilderImpl(200)
+    def apply(body:String, statusCode:Int = 200)(implicit decoder:Decoder[String]):HTMLResponseBuilder = new HTMLResponseBuilderImpl(decoder(body), statusCode)
+    def apply[T](body:T)(implicit decoder:Decoder[T]):HTMLResponseBuilder = new HTMLResponseBuilderImpl(decoder(body), 200)
+    def apply(template:Template, statusCode:Int = 200)(implicit decoder:Decoder[Template]):HTMLResponseBuilder = new HTMLResponseBuilderImpl(decoder(template), statusCode)
   }
 
-  object HtmlResponseBuilder {
+  object Created {
+    def apply(redirectTo:String, statusCode:Int = 201):Response = Redirect(redirectTo, statusCode)
+    def apply(urlToSelf:Link, statusCode:Int = 201):Response = new ResponseImpl(statusCode, Map(), Some(s"{this\":${urlToSelf}\"}".getBytes("utf8")))
+  }
 
-    trait HTMLResponseBuilder extends ResponseBuilder {
-      def withBody[T](body:T)(implicit decoder:Decoder[T]):HTMLResponseBuilder
-      def as(contentType:String):HTMLResponseBuilder
-    }
-
-    private class HTMLResponseBuilderImpl(override val statusCode:Int) extends HTMLResponseBuilder {
-      var body:Option[Array[Byte]] = None
-
-      override def withBody[T](entity: T)(implicit decoder: Decoder[T]): HTMLResponseBuilder = {
-        body = decoder(entity)
-        this
-      }
-
-      override def withHeader(key: String, value: String): HTMLResponseBuilder = {
-        setHeader(key, value)
-        this
-      }
-
-      override def as(contentType: String): HTMLResponseBuilder = {
-        headers = headers ++ Map[String, String]("Content-Type" -> contentType)
-        this
-      }
-
-      override def build(): Response = {
-        new ResponseImpl(statusCode, headers, body)
-      }
-    }
-
-    object Ok {
-      def apply(statusCode:Int=200):HTMLResponseBuilder = new HTMLResponseBuilderImpl(statusCode)
-    }
+  object Deleted {
+    def apply(statusCode:Int = 204):Response = new ResponseImpl(statusCode, Map(), None)
   }
 
   object Error {
-    def apply(error:Throwable, statusCode:Int=500):Response = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${error.getMessage}\n${error.getStackTraceString}".getBytes("utf8")))
+    def apply(error:Throwable, statusCode:Int = 500):Response = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${error.getMessage}\n${error.getStackTraceString}".getBytes("utf8")))
+    def apply(message:String, error:Throwable, statusCode:Int = 500) = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${message}\n${error.getStackTraceString}".getBytes("utf8")))
+    def apply(message:String, statusCode:Int = 500) = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${message}".getBytes("utf8")))
   }
 
   object TODO {
-    def apply(statusCode:Int=501):Response = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some("TODO - This page has not been implemented yet!".getBytes("utf8")))
+    def apply(statusCode:Int = 501):Response = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some("TODO - This page has not been implemented yet!".getBytes("utf8")))
   }
 
   object Redirect {
-    def apply(url: String, statusCode:Int=301): Response = new ResponseImpl(statusCode, Map("Location" -> url), None)
+    def apply(redirectTo:String, statusCode:Int = 301):Response = new ResponseImpl(statusCode, Map("Location" -> redirectTo), None)
   }
 
   object NotFound {
-    def apply(statusCode: Int = 404) = new ResponseImpl(statusCode, Map("Content-Type" -> "text/html"), Some("<h1>404 - Page not found!</h1>".getBytes("utf8")))
+    def apply(statusCode:Int = 404) = new ResponseImpl(statusCode, Map("Content-Type" -> "text/html"), Some("<h1>404 - Page not found!</h1>".getBytes("utf8")))
+    def apply(message:String, statusCode:Int = 404) = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${message}".getBytes("utf8")))
+  }
+
+  trait RESTResponseBuilder extends ResponseBuilder {
+    def asJSON:RESTResponseBuilder
+    def asXML:RESTResponseBuilder
+  }
+
+  trait HTMLResponseBuilder extends ResponseBuilder {
+    def as(contentType:String):HTMLResponseBuilder
+  }
+
+  private class RESTResponseBuilderImpl(val body:Option[Array[Byte]], override val statusCode:Int) extends RESTResponseBuilder {
+
+    def this(statusCode:Int) = this(None, statusCode)
+
+    override def asJSON:RESTResponseBuilder = {
+      headers = headers ++ Map[String, String]("Content-Type" -> "application/json")
+      this
+    }
+
+    override def asXML:RESTResponseBuilder = {
+      headers = headers ++ Map[String, String]("Content-Type" -> "application/xml")
+      this
+    }
+
+    override def withHeader(key:String, value:String):RESTResponseBuilder = {
+      setHeader(key, value)
+      this
+    }
+
+    override def build():Response = {
+      new ResponseImpl(statusCode, headers, body)
+    }
+  }
+
+  private class HTMLResponseBuilderImpl(val body:Option[Array[Byte]], override val statusCode:Int) extends HTMLResponseBuilder {
+
+    def this(statusCode:Int) = this(None, statusCode)
+
+    override def withHeader(key:String, value:String):HTMLResponseBuilder = {
+      setHeader(key, value)
+      this
+    }
+
+    override def as(contentType:String):HTMLResponseBuilder = {
+      headers = headers ++ Map[String, String]("Content-Type" -> contentType)
+      this
+    }
+
+    override def build():Response = {
+      new ResponseImpl(statusCode, headers, body)
+    }
   }
 }

@@ -5,6 +5,7 @@ import se.chimps.cameltow.framework._
 import se.chimps.cameltow.framework.parsing.Decoder
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
+import se.chimps.cameltow.framework.ResponseBuilders.Ok
 
 /**
  * Created by meduzz on 24/04/14.
@@ -18,23 +19,23 @@ object Server extends Cameltow with Sprits {
 }
 
 object Controller extends SpritsController {
-  import ResponseBuilders.RestResponseBuilder._
   import ResponseBuilders.Error
 
   val counterService = new AtomicVisitService()
+  implicit val decoder = StringDecoder
 
   override def apply() = {
     get("/asdf", BasicAction { req =>
       logger.info("{}", req)
       counterService.visit()
-      Ok().withEntity("Hello world!")(StringDecoder).build()
+      Ok("Hello world!").build()
     })
 
     get("/isMeduzz", Authorized { auth =>
       counterService.visit()
       if (auth) {
         logger.info("{}", auth)
-        Ok().withEntity("Hello and welcome back Meduzz!")(StringDecoder).build()
+        Ok("Hello and welcome back Meduzz!").build()
       } else {
         Error(new Exception("You are not welcome here! Name must be Meduzz."))
       }
@@ -46,7 +47,7 @@ object Controller extends SpritsController {
     get("/q/{apa}", BasicAction { req =>
       logger.info("{}", req)
       counterService.visit()
-      Ok().withEntity(s"You sent: ${req.params("apa")}")(StringDecoder).build()
+      Ok(s"You sent: ${req.params("apa")}").build()
     })
 
     get("/plain", BasicAction {
@@ -57,12 +58,12 @@ object Controller extends SpritsController {
     post("/post", BasicAction { req =>
       logger.info("{}", req)
       counterService.visit()
-      Ok().withEntity(s"You posted: ${req.params("text")}.")(StringDecoder).build()
+      Ok(s"You posted: ${req.params("text")}.").build()
     })
 
     get("/visits", BasicAction {
       counterService.visit()
-      Ok().withEntity(s"# of visits (${counterService.visits()})")(StringDecoder).build()
+      Ok(s"# of visits (${counterService.visits()})").build()
     })
   }
 }
