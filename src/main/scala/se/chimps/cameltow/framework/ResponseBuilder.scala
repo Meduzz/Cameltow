@@ -41,7 +41,7 @@ object ResponseBuilders {
 
   object Created {
     def apply(redirectTo:String, statusCode:Int = 201):Response = Redirect(redirectTo, statusCode)
-    def apply(urlToSelf:Link, statusCode:Int = 201):Response = new ResponseImpl(statusCode, Map(), Some(s"{this\":${urlToSelf}\"}".getBytes("utf8")))
+    def apply(urlToSelf:Link, statusCode:Int = 201):Response = new ResponseImpl(statusCode, Map(), Some(s"{this:\"${urlToSelf}\"}".getBytes("utf8")))
   }
 
   object Deleted {
