@@ -23,25 +23,24 @@ trait ResponseBuilder {
 case class ResponseImpl(statusCode:Int, headers:Map[String, String], body:Option[Array[Byte]]) extends Response
 
 object ResponseBuilders {
-  type Link = String
-
   // TODO add appropriate logging to all responses.
 
   object Ok {
     // REST
-    def apply(statusCode:Int = 200):RESTResponseBuilder = new RESTResponseBuilderImpl(statusCode)
-    def apply[T](entity:T, statusCode:Int = 200)(implicit decoder:Decoder[T]):RESTResponseBuilder = new RESTResponseBuilderImpl(decoder(entity), statusCode)
+    def apply(statusCode:Int):RESTResponseBuilder = new RESTResponseBuilderImpl(statusCode)
+    def apply[T](entity:T, statusCode:Int)(implicit decoder:Decoder[T]):RESTResponseBuilder = new RESTResponseBuilderImpl(decoder(entity), statusCode)
 
     //Html
-    def apply:HTMLResponseBuilder = new HTMLResponseBuilderImpl(200)
-    def apply(body:String, statusCode:Int = 200)(implicit decoder:Decoder[String]):HTMLResponseBuilder = new HTMLResponseBuilderImpl(decoder(body), statusCode)
+    def apply():HTMLResponseBuilder = new HTMLResponseBuilderImpl(200)
+    def apply(body:String, statusCode:Int)(implicit decoder:Decoder[String]):HTMLResponseBuilder = new HTMLResponseBuilderImpl(decoder(body), statusCode)
+    def apply[T](statusCode:Int, body:T)(implicit decoder:Decoder[T]):HTMLResponseBuilder = new HTMLResponseBuilderImpl(decoder(body), statusCode)
     def apply[T](body:T)(implicit decoder:Decoder[T]):HTMLResponseBuilder = new HTMLResponseBuilderImpl(decoder(body), 200)
-    def apply(template:Template, statusCode:Int = 200)(implicit decoder:Decoder[Template]):HTMLResponseBuilder = new HTMLResponseBuilderImpl(decoder(template), statusCode)
+    def apply(template:Template, statusCode:Int)(implicit decoder:Decoder[Template]):HTMLResponseBuilder = new HTMLResponseBuilderImpl(decoder(template), statusCode)
   }
 
   object Created {
     def apply(redirectTo:String, statusCode:Int = 201):Response = Redirect(redirectTo, statusCode)
-    def apply(urlToSelf:Link, statusCode:Int = 201):Response = new ResponseImpl(statusCode, Map(), Some(s"{this:\"${urlToSelf}\"}".getBytes("utf8")))
+    def apply(urlToSelf:String):Response = new ResponseImpl(201, Map(), Some(s"""{this:"${urlToSelf}"}""".getBytes("utf8")))
   }
 
   object Deleted {
@@ -49,9 +48,12 @@ object ResponseBuilders {
   }
 
   object Error {
-    def apply(error:Throwable, statusCode:Int = 500):Response = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${error.getMessage}\n${error.getStackTraceString}".getBytes("utf8")))
-    def apply(message:String, error:Throwable, statusCode:Int = 500) = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${message}\n${error.getStackTraceString}".getBytes("utf8")))
-    def apply(message:String, statusCode:Int = 500) = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${message}".getBytes("utf8")))
+    def apply(error:Throwable, statusCode:Int):Response = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${error.getMessage}\n${error.getStackTraceString}".getBytes("utf8")))
+    def apply(error:Throwable):Response = new ResponseImpl(500, Map("Content-Type" -> "text/plain"), Some(s"${error.getMessage}\n${error.getStackTraceString}".getBytes("utf8")))
+    def apply(message:String, error:Throwable, statusCode:Int) = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${message}\n${error.getStackTraceString}".getBytes("utf8")))
+    def apply(message:String, error:Throwable) = new ResponseImpl(500, Map("Content-Type" -> "text/plain"), Some(s"${message}\n${error.getStackTraceString}".getBytes("utf8")))
+    def apply(message:String, statusCode:Int) = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${message}".getBytes("utf8")))
+    def apply(message:String) = new ResponseImpl(500, Map("Content-Type" -> "text/plain"), Some(s"${message}".getBytes("utf8")))
   }
 
   object TODO {
@@ -63,7 +65,7 @@ object ResponseBuilders {
   }
 
   object NotFound {
-    def apply(statusCode:Int = 404) = new ResponseImpl(statusCode, Map("Content-Type" -> "text/html"), Some("<h1>404 - Page not found!</h1>".getBytes("utf8")))
+    def apply() = new ResponseImpl(404, Map("Content-Type" -> "text/html"), Some("<h1>404 - Page not found!</h1>".getBytes("utf8")))
     def apply(message:String, statusCode:Int = 404) = new ResponseImpl(statusCode, Map("Content-Type" -> "text/plain"), Some(s"${message}".getBytes("utf8")))
   }
 
