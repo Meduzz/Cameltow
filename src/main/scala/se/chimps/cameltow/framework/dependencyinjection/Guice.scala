@@ -1,6 +1,6 @@
 package se.chimps.cameltow.framework.dependencyinjection
 
-import com.google.inject.{Module, Guice}
+import com.google.inject.{Module, Guice => Juice}
 import collection.JavaConversions._
 
 /**
@@ -8,7 +8,7 @@ import collection.JavaConversions._
  */
 trait Guice extends DIBase {
   private var modules:Array[_<:Module] = Array()
-  private lazy val injector = Guice.createInjector(asJavaIterable(modules.toIterable))
+  private lazy val injector = Juice.createInjector(asJavaIterable(modules.toIterable))
 
   override def instance[T >: K, K](clazz: Class[K]): T = injector.getInstance(clazz)
 
