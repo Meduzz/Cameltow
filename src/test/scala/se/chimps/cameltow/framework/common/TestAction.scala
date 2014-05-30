@@ -2,6 +2,7 @@ package se.chimps.cameltow.framework.common
 
 import se.chimps.cameltow.framework.{ResponseImpl, Response, Request, BasicAction}
 import se.chimps.cameltow.framework.ResponseBuilders.{Error, Ok}
+import se.chimps.cameltow.framework.parsing.Decoder
 
 /**
  * Created by meduzz on 24/05/14.
@@ -25,3 +26,9 @@ object TestAction {
 }
 
 class TestException(val msg:String) extends Exception(msg) { }
+
+object StringDecoder extends Decoder[String] {
+  override def apply(entity:String):Option[Array[Byte]] = {
+    Some(entity.getBytes("utf-8"))
+  }
+}
