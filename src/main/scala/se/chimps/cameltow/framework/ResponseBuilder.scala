@@ -82,6 +82,12 @@ object ResponseBuilders {
 
     def this(statusCode:Int) = this(None, statusCode)
 
+    val len = body match {
+      case Some(body) => body.length
+      case None => 0
+    }
+    setHeader("Content-Length", s"${len}")
+
     override def asJSON:RESTResponseBuilder = {
       headers = headers ++ Map[String, String]("Content-Type" -> "application/json")
       this
@@ -105,6 +111,13 @@ object ResponseBuilders {
   private class HTMLResponseBuilderImpl(val body:Option[Array[Byte]], override val statusCode:Int) extends HTMLResponseBuilder {
 
     def this(statusCode:Int) = this(None, statusCode)
+
+    val len = body match {
+      case Some(body) => body.length
+      case None => 0
+    }
+    setHeader("Content-Length", s"${len}")
+    setHeader("Content-Type", "text/html")
 
     override def withHeader(key:String, value:String):HTMLResponseBuilder = {
       setHeader(key, value)
