@@ -13,6 +13,7 @@ import io.undertow.predicate.Predicates
 
 /**
  * Created by meduzz on 22/04/14.
+ * TODO break out all "modules" into modules :)
  */
 abstract class Cameltow extends App with Logging {
   // TODO implement a config... again
