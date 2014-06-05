@@ -7,7 +7,6 @@ import se.chimps.cameltow.framework.Http.{Methods, Method}
  * Created by meduzz on 24/04/14.
  */
 trait SpritsController extends Routing {
-  // TODO add a config
   def apply()
 }
 

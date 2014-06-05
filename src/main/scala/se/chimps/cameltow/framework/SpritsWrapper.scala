@@ -11,7 +11,6 @@ import io.undertow.server.handlers.form.FormDataParser
 /**
  * Created by meduzz on 14/05/14.
  */
-// TODO the wrapper needs to know about and have an understanding of the http-method.
 private[cameltow] class SpritsWrapper(val routes:Map[Method, BasicAction]) extends HttpHandler with Logging {
   override def handleRequest(exchange: HttpServerExchange): Unit = {
     val req = BuildSpritsRequest(exchange)
