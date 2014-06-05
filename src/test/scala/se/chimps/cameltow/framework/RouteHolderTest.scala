@@ -9,7 +9,7 @@ import se.chimps.cameltow.framework.ResponseBuilders.{TODO, Ok}
 /**
  * Created by meduzz on 24/05/14.
  */
-class RouteHolderTestcases extends FunSuite {
+class RouteHolderTest extends FunSuite {
   test("happy case") {
     RouteHolder.put(Methods.GET, "/test", BasicAction { req => Ok().build() })
 
