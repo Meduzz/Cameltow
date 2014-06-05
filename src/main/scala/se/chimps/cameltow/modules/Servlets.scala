@@ -1,15 +1,14 @@
-package se.chimps.cameltow.servlets
+package se.chimps.cameltow.modules
 
 import java.io.File
 import se.chimps.cameltow.exceptions.InvalidConfigurationException
-import org.slf4j.Logger
 import javax.servlet.http.HttpServlet
+import se.chimps.cameltow.Cameltow
 
 /**
  * Created by meduzz on 24/04/14.
  */
-trait Servlets {
-  def logger:Logger
+trait Servlets { self:Cameltow =>
 
   def registerWar(warFile:File) = {
     if (!warFile.exists() || !warFile.isFile) {
@@ -19,8 +18,9 @@ trait Servlets {
     // TODO implement
   }
 
-  // Shortcut to Spring intialization for thoose layed in that direction.
-  def registerServlet(servlet:HttpServlet) = {
+  def registerServlet(path:String, servlet:HttpServlet) = {
     // TODO implement
   }
+
+  // TODO support @Servlet annotation scanning of classes and shite?
 }

@@ -1,8 +1,8 @@
-package se.chimps.cameltow.framework.dependencyinjection
+package se.chimps.cameltow.di
 
 import org.scalatest.FunSuite
-import se.chimps.cameltow.framework.dependencyinjection.util.{SpringTestApp, GuiceTestApp}
-import se.chimps.cameltow.framework.dependencyinjection.util.Common.LifecycleImpl
+import se.chimps.cameltow.di.util.{SpringTestApp, GuiceTestApp}
+import se.chimps.cameltow.di.util.Common.LifecycleImpl
 
 /**
  * Created by meduzz on 05/06/14.
@@ -12,15 +12,17 @@ class DITest extends FunSuite {
     val guice = new GuiceTestApp
     val lf = new LifecycleImpl
     guice.registerLifecycle(lf)
+    guice.start()
 
-    assert(guice.lifecycle(0).equals(lf))
+    assert(lf.started)
   }
 
   test("spring registers lifecycle") {
     val spring = new SpringTestApp
     val lf = new LifecycleImpl
     spring.registerLifecycle(lf)
+    spring.start()
 
-    assert(spring.lifecycle(0).equals(lf))
+    assert(lf.started)
   }
 }

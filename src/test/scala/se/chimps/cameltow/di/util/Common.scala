@@ -1,6 +1,6 @@
-package se.chimps.cameltow.framework.dependencyinjection.util
+package se.chimps.cameltow.di.util
 
-import se.chimps.cameltow.framework.lifecycle.Lifecycle
+import se.chimps.cameltow.lifecycle.Lifecycle
 
 /**
  * Created by meduzz on 05/06/14.

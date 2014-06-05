@@ -1,4 +1,4 @@
-package se.chimps.cameltow.framework.lifecycle
+package se.chimps.cameltow.lifecycle
 
 /**
  * Created by meduzz on 16/05/14.

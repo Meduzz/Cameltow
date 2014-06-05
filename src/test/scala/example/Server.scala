@@ -6,6 +6,7 @@ import se.chimps.cameltow.framework.parsing.Decoder
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import se.chimps.cameltow.framework.ResponseBuilders.Ok
+import se.chimps.cameltow.modules.Sprits
 
 /**
  * Created by meduzz on 24/04/14.
@@ -13,7 +14,7 @@ import se.chimps.cameltow.framework.ResponseBuilders.Ok
 object Server extends Cameltow with Sprits {
   def initialize() = {
     registerController(Controller)
-    staticContent("/static", new File("src/test/resources/form.html").getParentFile)
+    addStaticContent("/static", new File(getClass.getClassLoader.getResource("form.html").getFile).getParentFile)
     listen(8080)
   }
 }

@@ -1,4 +1,4 @@
-package se.chimps.cameltow.framework.dependencyinjection.util
+package se.chimps.cameltow.di.util
 
 import com.google.inject.AbstractModule
 

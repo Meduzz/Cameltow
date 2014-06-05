@@ -30,7 +30,7 @@ private[cameltow] class SpritsWrapper(val routes:Map[Method, BasicAction]) exten
     })
     res.body match {
       case Some(body:Array[Byte]) => exchange.getResponseSender.send(ByteBuffer.wrap(body))
-      case None => exchange.getResponseSender.send("")
+      case None => exchange.getResponseSender.send(ByteBuffer.allocate(0))
     }
   }
 }
