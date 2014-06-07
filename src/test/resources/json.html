@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <title>JSON test</title>
+    </head>
+    <body>
+        <form method="post" action="/json" enctype="applicatioin/json">
+            <div>Send text: <input type="text" name="text"/>
+            <input type="button" value="Send"/></div>
+            <div>Response: <span id="response"></span></div>
+        </form>
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script>
+            $(function(){
+                $("input[type=button]").on("click", function() {
+                    var form = $("form").serialize();
+                    $.ajax("/json",
+                    {
+                        data:form,
+                        contents:form,
+                        dataType:"json",
+                        type:"post",
+                        contentType:"application/json",
+                        success:function(data, status, xhr){
+                            $("#response").text("Success: "+data.text);
+                        }, error:function(xhr, error, text){
+                            $("#response").text("Error: "+text);
+                        }, headers:{"content-type":"application/json"}
+                    });
+                    return false;
+                });
+            })
+        </script>
+    </body>
+</html>

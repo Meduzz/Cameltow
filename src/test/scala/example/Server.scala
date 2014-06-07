@@ -25,6 +25,13 @@ object Controller extends SpritsController {
   val counterService = new AtomicVisitService()
   implicit val decoder = StringDecoder
 
+  implicit def authenticator(req:Request):Boolean = {
+    req.params.get("name") match {
+      case Some("Meduzz") => true
+      case _ => false
+    }
+  }
+
   override def apply() = {
     get("/asdf", BasicAction { req =>
       logger.info("{}", req)
@@ -40,10 +47,7 @@ object Controller extends SpritsController {
       } else {
         Error(new Exception("You are not welcome here! Name must be Meduzz."))
       }
-    }(req => req.params.get("name") match {
-      case Some("Meduzz") => true
-      case _ => false
-    }))
+    })
 
     get("/q/{apa}", BasicAction { req =>
       logger.info("{}", req)
@@ -56,15 +60,20 @@ object Controller extends SpritsController {
       Ok(200).build()
     })
 
+    get("/visits", BasicAction {
+      counterService.visit()
+      Ok(s"# of visits (${counterService.visits()})").build()
+    })
+
     post("/post", BasicAction { req =>
       logger.info("{}", req)
       counterService.visit()
       Ok(s"You posted: ${req.params("text")}.").build()
     })
 
-    get("/visits", BasicAction {
+    post("/json", BasicAction { req =>
       counterService.visit()
-      Ok(s"# of visits (${counterService.visits()})").build()
+      Ok[String](s"""{"text":"${req.body}"}""", 200).asJSON.build()
     })
   }
 }
@@ -80,7 +89,7 @@ trait Authorized extends BasicAction {
 }
 
 object Authorized {
-  def apply(ctrl:Boolean=>Response)(f:Request=>Boolean):Authorized = new Authorized {
+  def apply(ctrl:Boolean=>Response)(implicit f:Request=>Boolean):Authorized = new Authorized {
     override def apply(authed:Boolean):Response = ctrl(authed)
 
     override def apply(req:Request):Response = this(f(req))
