@@ -1,23 +1,19 @@
 package se.chimps.cameltow.framework
 
-import se.chimps.cameltow.framework.undertow.{RequestParameterWrapper, HeaderMapWrapper}
-import io.undertow.server.{HttpServerExchange, HttpHandler}
 import java.nio.ByteBuffer
-import se.chimps.cameltow.framework.ResponseBuilders.NotFound
-import se.chimps.cameltow.framework.Http.Method
-import se.chimps.cameltow.logging.Logging
+
 import io.undertow.server.handlers.form.FormDataParser
-import org.xnio.ChannelListener
-import org.xnio.channels.StreamSourceChannel
+import io.undertow.server.{HttpHandler, HttpServerExchange}
+import se.chimps.cameltow.framework.Http.Method
+import se.chimps.cameltow.framework.ResponseBuilders.NotFound
+import se.chimps.cameltow.framework.undertow.{HeaderMapWrapper, RequestParameterWrapper}
 
 /**
  * Created by meduzz on 14/05/14.
  */
-private[cameltow] class SpritsWrapper(val routes:Map[Method, BasicAction]) extends HttpHandler with Logging {
+private[cameltow] class SpritsWrapper(val routes:Map[Method, BasicAction]) extends HttpHandler {
   override def handleRequest(exchange: HttpServerExchange): Unit = {
     val req = BuildSpritsRequest(exchange)
-
-    logger.debug("Handling request: {}", req)
 
     val res:Response = routes.get(req.method) match {
       case None => NotFound() // Lets 404 this one.
