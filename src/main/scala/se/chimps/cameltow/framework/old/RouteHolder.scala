@@ -1,7 +1,8 @@
-package se.chimps.cameltow.framework
+package se.chimps.cameltow.framework.old
+
+import se.chimps.cameltow.framework.old.Http._
 
 import scala.collection.mutable
-import Http._
 
 /**
  * Created by meduzz on 14/05/14.

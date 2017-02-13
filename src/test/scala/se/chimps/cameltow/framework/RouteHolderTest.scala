@@ -1,9 +1,10 @@
 package se.chimps.cameltow.framework
 
 import org.scalatest.FunSuite
-import se.chimps.cameltow.framework.Http.Methods
+import se.chimps.cameltow.framework.old.Http.Methods
 import se.chimps.cameltow.framework.common.TestAction
-import se.chimps.cameltow.framework.ResponseBuilders.{TODO, Ok}
+import se.chimps.cameltow.framework.old.{BasicAction, RouteHolder}
+import se.chimps.cameltow.framework.old.ResponseBuilders.{Ok, TODO}
 
 
 /**

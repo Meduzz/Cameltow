@@ -1,8 +1,9 @@
 package se.chimps.cameltow.framework
 
 import org.scalatest.FunSuite
-import se.chimps.cameltow.framework.ResponseBuilders._
+import se.chimps.cameltow.framework.old.ResponseBuilders._
 import example.StringDecoder
+
 import scala.Some
 
 /**
@@ -57,7 +58,7 @@ class ResponseBuildersTest extends FunSuite {
   test("Deleted builder, the happy case") {
     val deleted = Deleted()
 
-    assert(deleted.isInstanceOf[Response])
+    assert(deleted.isInstanceOf[old.Response])
     assert(deleted.statusCode == 204)
     assert(deleted.body.equals(None))
   }
@@ -67,15 +68,15 @@ class ResponseBuildersTest extends FunSuite {
     val error2 = Error("null", new NullPointerException("null"))
     val error3 = Error("null")
 
-    assert(error1.isInstanceOf[Response])
+    assert(error1.isInstanceOf[old.Response])
     assert(error1.statusCode == 500)
     assert(!error1.body.equals(None))
 
-    assert(error2.isInstanceOf[Response])
+    assert(error2.isInstanceOf[old.Response])
     assert(error2.statusCode == 500)
     assert(!error2.body.equals(None))
 
-    assert(error3.isInstanceOf[Response])
+    assert(error3.isInstanceOf[old.Response])
     assert(error3.statusCode == 500)
     assert(!error3.body.equals(None))
   }
@@ -83,7 +84,7 @@ class ResponseBuildersTest extends FunSuite {
   test("Redirect builder, happy case") {
     val redirect = Redirect("/home")
 
-    assert(redirect.isInstanceOf[Response])
+    assert(redirect.isInstanceOf[old.Response])
     assert(redirect.statusCode == 301)
     assert(redirect.body.equals(None))
   }
@@ -92,11 +93,11 @@ class ResponseBuildersTest extends FunSuite {
     val nf1 = NotFound()
     val nf2 = NotFound("404 tbh")
 
-    assert(nf1.isInstanceOf[Response])
+    assert(nf1.isInstanceOf[old.Response])
     assert(nf1.statusCode == 404)
     assert(!nf1.body.equals(None))
 
-    assert(nf2.isInstanceOf[Response])
+    assert(nf2.isInstanceOf[old.Response])
     assert(nf2.statusCode == 404)
     assert(!nf2.body.equals(None))
   }

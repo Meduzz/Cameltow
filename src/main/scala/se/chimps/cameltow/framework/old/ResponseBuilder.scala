@@ -1,7 +1,4 @@
-package se.chimps.cameltow.framework
-
-import se.chimps.cameltow.framework.parsing.Decoder
-import se.chimps.cameltow.templates.Template
+package se.chimps.cameltow.framework.old
 
 /**
  * Created by meduzz on 27/04/14.

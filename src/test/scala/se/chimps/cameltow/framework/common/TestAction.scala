@@ -1,19 +1,20 @@
 package se.chimps.cameltow.framework.common
 
-import se.chimps.cameltow.framework.{ResponseImpl, Response, Request, BasicAction}
-import se.chimps.cameltow.framework.ResponseBuilders.{Error, Ok}
+import se.chimps.cameltow.framework.old.BasicAction
+import se.chimps.cameltow.framework.{Request, Response, ResponseImpl, old}
+import se.chimps.cameltow.framework.old.ResponseBuilders.{Error, Ok}
 import se.chimps.cameltow.framework.parsing.Decoder
 
 /**
  * Created by meduzz on 24/05/14.
  */
 trait TestAction extends BasicAction {
-  def apply(valid:Boolean):Response
+  def apply(valid:Boolean):old.Response
 }
 
 object TestAction {
-  def apply(validator:Request=>Boolean):TestAction = new TestAction {
-    override def apply(valid:Boolean):Response = {
+  def apply(validator:old.Request=>Boolean):TestAction = new TestAction {
+    override def apply(valid:Boolean):old.Response = {
       if (valid) {
         Ok().build()
       } else {
@@ -21,7 +22,7 @@ object TestAction {
       }
     }
 
-    override def apply(request:Request):Response = this(validator(request))
+    override def apply(request:old.Request):old.Response = this(validator(request))
   }
 }
 

@@ -1,11 +1,15 @@
 package se.chimps.cameltow.modules
 
 import java.io.File
+
 import io.undertow.server.handlers.resource.{FileResourceManager, ResourceHandler}
 import io.undertow.predicate.Predicates
+import io.undertow.servlet.core.Lifecycle
 import se.chimps.cameltow.Cameltow
+import se.chimps.cameltow.framework.old.{RouteHolder, SpritsController, SpritsWrapper}
 import se.chimps.cameltow.lifecycle.Lifecycle
-import se.chimps.cameltow.framework.{SpritsWrapper, RouteHolder, SpritsController}
+import se.chimps.cameltow.framework.RouteHolder
+
 import scala.collection.mutable
 
 /**

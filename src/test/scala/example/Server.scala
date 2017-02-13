@@ -1,11 +1,13 @@
 package example
 
 import se.chimps.cameltow.Cameltow
-import se.chimps.cameltow.framework._
+import se.chimps.cameltow.framework.{old, _}
 import se.chimps.cameltow.framework.parsing.Decoder
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
-import se.chimps.cameltow.framework.ResponseBuilders.Ok
+
+import se.chimps.cameltow.framework.old.ResponseBuilders.Ok
+import se.chimps.cameltow.framework.old.{BasicAction, SpritsController}
 import se.chimps.cameltow.modules.Sprits
 
 /**
@@ -20,12 +22,12 @@ object Server extends Cameltow with Sprits {
 }
 
 object Controller extends SpritsController {
-  import ResponseBuilders.Error
+  import se.chimps.cameltow.framework.old.ResponseBuilders.Error
 
   val counterService = new AtomicVisitService()
   implicit val decoder = StringDecoder
 
-  implicit def authenticator(req:Request):Boolean = {
+  implicit def authenticator(req:old.Request):Boolean = {
     req.params.get("name") match {
       case Some("Meduzz") => true
       case _ => false
@@ -85,14 +87,14 @@ object StringDecoder extends Decoder[String] {
 }
 
 trait Authorized extends BasicAction {
-  def apply(authed:Boolean):Response
+  def apply(authed:Boolean):old.Response
 }
 
 object Authorized {
-  def apply(ctrl:Boolean=>Response)(implicit f:Request=>Boolean):Authorized = new Authorized {
-    override def apply(authed:Boolean):Response = ctrl(authed)
+  def apply(ctrl:Boolean=>old.Response)(implicit f:old.Request=>Boolean):Authorized = new Authorized {
+    override def apply(authed:Boolean):old.Response = ctrl(authed)
 
-    override def apply(req:Request):Response = this(f(req))
+    override def apply(req:old.Request):old.Response = this(f(req))
   }
 }
 

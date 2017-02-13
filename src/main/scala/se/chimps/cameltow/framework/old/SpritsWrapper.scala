@@ -1,11 +1,10 @@
-package se.chimps.cameltow.framework
+package se.chimps.cameltow.framework.old
 
 import java.nio.ByteBuffer
 
 import io.undertow.server.handlers.form.FormDataParser
 import io.undertow.server.{HttpHandler, HttpServerExchange}
-import se.chimps.cameltow.framework.Http.Method
-import se.chimps.cameltow.framework.ResponseBuilders.NotFound
+import se.chimps.cameltow.framework.old.ResponseBuilders.NotFound
 import se.chimps.cameltow.framework.undertow.{HeaderMapWrapper, RequestParameterWrapper}
 
 /**

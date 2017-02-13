@@ -1,7 +1,4 @@
-package se.chimps.cameltow.framework
-
-import se.chimps.cameltow.logging.Logging
-import se.chimps.cameltow.framework.Http.{Methods, Method}
+package se.chimps.cameltow.framework.old
 
 /**
  * Created by meduzz on 24/04/14.

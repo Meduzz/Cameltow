@@ -1,4 +1,4 @@
-package se.chimps.cameltow.framework
+package se.chimps.cameltow.framework.old
 
 /**
  * Created by meduzz on 25/04/14.
