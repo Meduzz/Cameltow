@@ -1,8 +1,7 @@
-package se.chimps.cameltow.framework.routes.handlers
+package se.chimps.cameltow.framework.handlers
 
 import io.undertow.server.{HttpHandler, HttpServerExchange}
-import se.chimps.cameltow.framework.routes.Handler
-import se.chimps.cameltow.framework.{Request, Response}
+import se.chimps.cameltow.framework.{Handler, Request, Response}
 
 import scala.concurrent.{ExecutionContext, Future}
 

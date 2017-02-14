@@ -1,4 +1,4 @@
-package se.chimps.cameltow.framework.routes
+package se.chimps.cameltow.framework
 
 import io.undertow.server.HttpHandler
 

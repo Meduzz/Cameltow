@@ -1,28 +1,20 @@
 package se.chimps.cameltow.framework.routes
 
+import se.chimps.cameltow.framework.Handler
+
 import scala.concurrent.ExecutionContext
 
 trait Routes {
 
-  def GET(path:String, handler:Handler)(implicit ec:ExecutionContext)
-  def POST(path:String, handler:Handler)(implicit ec:ExecutionContext)
-  def PUT(path:String, handler:Handler)(implicit ec:ExecutionContext)
-  def DELETE(path:String, handler:Handler)(implicit ec:ExecutionContext)
-  def HEAD(path:String, handler:Handler)(implicit ec:ExecutionContext)
-  def TRACE(path:String, handler:Handler)(implicit ec:ExecutionContext)
-  def PATCH(path:String, handler:Handler)(implicit ec:ExecutionContext)
+  def GET(path:String, handler:Handler)(implicit ec:ExecutionContext):Routes
+  def POST(path:String, handler:Handler)(implicit ec:ExecutionContext):Routes
+  def PUT(path:String, handler:Handler)(implicit ec:ExecutionContext):Routes
+  def DELETE(path:String, handler:Handler)(implicit ec:ExecutionContext):Routes
+  def HEAD(path:String, handler:Handler)(implicit ec:ExecutionContext):Routes
+  def TRACE(path:String, handler:Handler)(implicit ec:ExecutionContext):Routes
+  def PATCH(path:String, handler:Handler)(implicit ec:ExecutionContext):Routes
 
   def route(path:String):Routes
 
-  /*
-  io/undertow/server/handlers/resource/ResourceHandler.java
-  io/undertow/server/handlers/resource/PathResourceManager.java
-   */
-  //def static(dir:String)
-  /*
-  io/undertow/server/handlers/resource/ResourceHandler.java
-  io/undertow/server/handlers/resource/FileResourceManager.java
-   */
-  //def staticFile(file:String)
-
+  def handler:Handler
 }

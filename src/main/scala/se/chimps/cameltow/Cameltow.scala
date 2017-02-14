@@ -1,9 +1,20 @@
 package se.chimps.cameltow
 
+import io.undertow.Undertow
+import se.chimps.cameltow.framework.{Feature, Handler}
+import se.chimps.cameltow.framework.routes.Routes
+
 object Cameltow {
+  def routes():Routes = ???
 }
 
 class Cameltow {
+}
+
+trait Builder {
+  def handler(handler:Handler):Cameltow
+  def listen(port:Int, host:String):Undertow
+  def activate(feature:Feature):Cameltow
 }
 
 /*
@@ -13,9 +24,10 @@ class Cameltow {
   val routes = Cameltow.routes()
 
   routes.get(/, Handler)
-  rotes.get(/static/, Static|StaticClasspath.dir(/assets)) // funky shorthand solution to a semi complex problem
+  rotes.get(/static/, Static.dir|file|classpath(/assets)) // funky shorthand solution to a semi complex problem
   val group = routes.group(/group) // translates into a RoutingHandler
   group.get(/, Handler)
+  group.get(/secret,Authorize(delegate)(Cached(Action))) // this type of chaining would be awesome!.. but also awfully close to feature creep.
 
   Action((Request)=>Future[Response])
 
@@ -23,7 +35,7 @@ class Cameltow {
   as composing methods.
 
   val server = Cameltow.listen(port, host = 0.0.0.0)
-  server.shutdown()
+  server.stop()
 
   // TBD start.
   Cameltow.activate(WS)
