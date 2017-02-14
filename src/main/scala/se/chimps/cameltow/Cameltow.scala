@@ -6,6 +6,7 @@ import se.chimps.cameltow.framework.routes.Routes
 
 object Cameltow {
   def routes():Routes = ???
+  def defaults():Cameltow = ???
 }
 
 class Cameltow {
