@@ -5,6 +5,8 @@ import java.nio.ByteBuffer
 import io.undertow.server.HttpServerExchange
 import io.undertow.util.HttpString
 
+import scala.concurrent.ExecutionContext
+
 case class Response(code:Int, headers:Map[String, String] = Map(), body:Option[Body] = None, cookie:Option[Cookie] = None) {
 
   def withHeader(header:String, value:String):Response =
@@ -19,7 +21,7 @@ case class Response(code:Int, headers:Map[String, String] = Map(), body:Option[B
   def withCookie(cookie: Cookie):Response =
     copy(cookie = Some(cookie))
 
-  private[cameltow] def write(exchange:HttpServerExchange) = {
+  private[cameltow] def write(exchange:HttpServerExchange)(implicit ec:ExecutionContext) = {
     exchange.setStatusCode(code)
 
     cookie match {

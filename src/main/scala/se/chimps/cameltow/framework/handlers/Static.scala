@@ -4,7 +4,7 @@ import java.io.File
 import java.nio.file.Path
 
 import io.undertow.server.handlers.cache.DirectBufferCache
-import io.undertow.server.handlers.resource.{CachingResourceManager, ClassPathResourceManager, FileResourceManager, PathResourceManager, ResourceHandler, ResourceManager}
+import io.undertow.server.handlers.resource.{CachingResourceManager, ClassPathResourceManager, FileResourceManager, PathResourceManager, ResourceHandler => UndertowResourceHandler, ResourceManager}
 import org.xnio.BufferAllocator
 import se.chimps.cameltow.framework.Handler
 
@@ -19,7 +19,7 @@ object Static {
 
 class StaticFileHandler(val file:File) extends Handler {
   override private[cameltow] def httpHandler = {
-    val manager = new FileResourceManager(file, 0L)
+    val manager = new FileResourceManager(file, -1L)
     ResourceHandler(manager)
   }
 }
@@ -74,5 +74,5 @@ case class Caching(maxItemCount:Int, maxAgeMillis:Int, maxSizeMb:Int) {
 }
 
 private object ResourceHandler {
-  def apply(manager:ResourceManager):ResourceHandler = new ResourceHandler(manager)
+  def apply(manager:ResourceManager):UndertowResourceHandler = new UndertowResourceHandler(manager)
 }

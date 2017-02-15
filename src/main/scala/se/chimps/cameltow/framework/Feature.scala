@@ -4,21 +4,24 @@ import io.undertow.server.HttpHandler
 
 trait Feature {
   private[cameltow] def httpHandler:HttpHandler
+  private[cameltow] def setNext(httpHandler: HttpHandler)
 }
 
 /*
-  Alot of these could be both features and handlers...
+  # Handler
+  + OriginHandler
+  + RequestLimitHandler
+  + ResponseRateLimitHandler
+  HttpContinueAcceptingHandler (for 100 Continue calls, takes a predicate...)
+  MetricsHandler (Metrics.handler & Metrics.data)
+  IPAddressAccessControlHandler (Whitelist(delegate) & Blacklist(delegate))
+  ChannelUpgradeHandler (or what ever enables websocket and http2) (WebSocketText() & WebSocketBinary())
 
-  IPAddressAccessControlHandler
-  MetricsHandler
-  OriginHandler
-  RequestLimitHandler
-  ResponseRateLimitHandler
-  GracefulShutdownHandler (should be default)
-  ExceptionHandler
-  ChannelUpgradeHandler (or what ever enables websocket and http2)
-  HttpContinueAcceptingHandler (for 100 Continue calls, perhaps use HttpContinueReadHandler instead)
+  # Features
+  + ExceptionHandler
+  + EagerFormParsingHandler (should be default)
+  + GracefulShutdownHandler (should be default)
+  + EncodingHandler (for gzip and in the future, encryption) (should be default)
   ProxyPeerAddressHandler
-  EncodingHandler & RequestEncodingHandler + simple en/decryption Provider (could also be a handler)
-  EagerFormParsingHandler (should be default)
+
  */

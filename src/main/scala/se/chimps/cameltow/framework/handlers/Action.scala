@@ -7,6 +7,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object Action {
   def apply(handler:(Request)=>Future[Response])(implicit ec:ExecutionContext):Handler = new FutureHandler(handler)
+
+  def sync(handler:(Request)=>Response)(implicit ec:ExecutionContext):Handler = new Handler {
+    override private[cameltow] def httpHandler = new HttpHandler {
+      override def handleRequest(exchange: HttpServerExchange):Unit =
+        handler(Request(exchange)).write(exchange)
+    }
+  }
 }
 
 class FutureHandler(val func:(Request)=>Future[Response])(implicit ec:ExecutionContext) extends Handler {
