@@ -1,14 +1,14 @@
 package se.chimps.cameltow
 
 import io.undertow.Undertow
-import io.undertow.server.RoutingHandler
-import io.undertow.server.handlers.ResponseCodeHandler
+import io.undertow.server.HttpHandler
+import io.undertow.server.handlers.{PathHandler, ResponseCodeHandler}
 import se.chimps.cameltow.framework.feaures.{GracefulShutdown, Gzip, ParseForms}
-import se.chimps.cameltow.framework.{Feature, Handler}
 import se.chimps.cameltow.framework.routes.{Routes, RoutesImpl}
+import se.chimps.cameltow.framework.{Feature, Handler}
 
 object Cameltow {
-  def routes():Routes = new RoutesImpl(new RoutingHandler(true))
+  def routes():Routes = new RoutesImpl(new PathHandler())
   def defaults():Builder = {
     val defaults = Map("GracefulShutdown" -> GracefulShutdown(), "Gzip" -> Gzip(), "ParseForms" -> ParseForms())
     new Cameltow(defaults)
@@ -26,7 +26,7 @@ class Cameltow(private var features:Map[String, Feature]) extends Builder {
 
   override def listen(port: Int, host: String): Undertow = {
     Undertow.builder()
-      .setHandler(handler.map(_.httpHandler).getOrElse(ResponseCodeHandler.HANDLE_404))
+      .setHandler(featuresAsHandler)
       .addHttpListener(port, host)
       .build()
   }
@@ -34,6 +34,14 @@ class Cameltow(private var features:Map[String, Feature]) extends Builder {
   override def activate(feature: Feature): Builder = {
     features = features ++ Map(feature.getClass.getSimpleName -> feature)
     this
+  }
+
+  private def featuresAsHandler:HttpHandler = {
+    val root = handler.map(_.httpHandler).getOrElse(ResponseCodeHandler.HANDLE_404)
+    features.values.foldLeft(root)((a,b) => {
+      b.setNext(a)
+      b.httpHandler
+    })
   }
 }
 

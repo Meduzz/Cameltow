@@ -4,7 +4,7 @@ import io.undertow.server.{HttpHandler, HttpServerExchange}
 import org.slf4j.LoggerFactory
 import se.chimps.cameltow.framework.{Feature, Response}
 
-import scala.util.{Failure, Try}
+import scala.util.{Failure, Success, Try}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Error {
@@ -18,11 +18,12 @@ class Error(func:PartialFunction[Throwable, Response]) extends Feature {
 
   override private[cameltow] def httpHandler:HttpHandler = new HttpHandler {
     override def handleRequest(exchange: HttpServerExchange):Unit = {
-      Try(next.handleRequest(exchange)) match {
+      Try[Unit](next.handleRequest(exchange)) match { // is always a Success....
         case Failure(e) => {
           log.error("Caught exception:", e)
           func(e).write(exchange)
         }
+        case s:Success[Unit] =>
       }
     }
   }

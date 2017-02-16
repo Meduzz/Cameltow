@@ -10,15 +10,17 @@ import scala.concurrent.Promise
 
 object Request {
   def apply(context:HttpServerExchange):Request = new Request(context)
+
+  implicit def seq2Option(data:Seq[String]):Option[String] = data.headOption
 }
 
 // TODO hide the exchange?
 class Request(val exchange:HttpServerExchange) {
   def method:String = exchange.getRequestMethod.toString
-  def header(name:String):Seq[String] = exchange.getRequestHeaders.get(name).asScala
-  def query(name:String):Seq[String] = exchange.getQueryParameters.get(name).asScala.toSeq
+  def header[T](name:String)(implicit func:(Seq[String])=>T):T = func(exchange.getRequestHeaders.get(name).asScala)
+  def query[T](name:String)(implicit func:(Seq[String])=>T):T = func(exchange.getQueryParameters.get(name).asScala.toSeq)
   def cookie(name:String):Cookie = new Cookie(exchange.getRequestCookies.get(name))
-  def body:Body = {
+  def body:RequestBody = {
     if (exchange.getAttachment(FormDataParser.FORM_DATA) != null) {
       // Form or File
       val data = exchange.getAttachment(FormDataParser.FORM_DATA)
@@ -36,7 +38,7 @@ class Request(val exchange:HttpServerExchange) {
         }).toSeq
       })
       Form(it.zip(formItems).toMap)
-    } else if (exchange.getRequestHeaders.get("Content-Encoding").contains("chunked")) {
+    } else if (exchange.getRequestHeaders.contains("Content-Encoding") && exchange.getRequestHeaders.get("Content-Encoding").contains("chunked")) {
       // Stream?
       val queue = Queue[Array[Byte]]()
       exchange.getRequestReceiver.receivePartialBytes(new PartialBytesCallback {

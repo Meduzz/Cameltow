@@ -1,29 +1,35 @@
 package se.chimps.cameltow.framework.routes
 
-import io.undertow.server.RoutingHandler
-import io.undertow.util.Methods
+import io.undertow.server.handlers.{PathHandler, PathTemplateHandler}
 import se.chimps.cameltow.framework.Handler
 
 trait Routes {
+  def pathHandler:PathHandler
 
-  def backingHandler:RoutingHandler
-
-  def GET(path:String, handler:Handler):Unit = backingHandler.get(path, handler.httpHandler)
-  def POST(path:String, handler:Handler):Unit = backingHandler.post(path, handler.httpHandler)
-  def PUT(path:String, handler:Handler):Unit = backingHandler.put(path, handler.httpHandler)
-  def DELETE(path:String, handler:Handler):Unit = backingHandler.delete(path, handler.httpHandler)
-  def HEAD(path:String, handler:Handler):Unit = backingHandler.add(Methods.HEAD, path, handler.httpHandler)
-  def PATCH(path:String, handler:Handler):Unit = backingHandler.add("PATCH", path, handler.httpHandler)
+  // not as pretty as the original though, but working.
+  def prefix(path:String, handler:Handler):Unit = pathHandler.addPrefixPath(path, handler.httpHandler)
+  def exact(path:String, handler:Handler):Unit = pathHandler.addExactPath(path, handler.httpHandler)
+  def template(path:String, handler: Handler):Unit = {
+    val tpl = new PathTemplateHandler(true)
+    tpl.add(path, handler.httpHandler)
+    pathHandler.addPrefixPath("/", tpl)
+  }
 
   def routes(path:String):Routes = {
-    new RoutesImpl(backingHandler)
+    val child = new PathHandler()
+    pathHandler.addExactPath(path, child)
+    new RoutesImpl(child)
+  }
+
+  def routes(path:String, other:Routes):Unit = {
+    exact(path, other.handler)
   }
 
   def handler:Handler
 }
 
-private[cameltow] class RoutesImpl(val backingHandler:RoutingHandler) extends Routes {
+private[cameltow] class RoutesImpl(val pathHandler: PathHandler) extends Routes {
   override def handler: Handler = new Handler {
-    override private[cameltow] def httpHandler = backingHandler
+    override private[cameltow] def httpHandler = pathHandler
   }
 }

@@ -1,9 +1,13 @@
 package se.chimps.cameltow.framework.handlers
 
+import java.util.concurrent.TimeUnit
+
 import io.undertow.server.{HttpHandler, HttpServerExchange}
 import se.chimps.cameltow.framework.{Handler, Request, Response}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 object Action {
   def apply(handler:(Request)=>Future[Response])(implicit ec:ExecutionContext):Handler = new FutureHandler(handler)
@@ -19,7 +23,10 @@ object Action {
 class FutureHandler(val func:(Request)=>Future[Response])(implicit ec:ExecutionContext) extends Handler {
   override private[cameltow] def httpHandler: HttpHandler = new HttpHandler {
     override def handleRequest(exchange: HttpServerExchange):Unit = {
-      func(Request(exchange)).foreach(resp => resp.write(exchange))
+      Await.ready(func(Request(exchange)), Duration(3L, TimeUnit.SECONDS)).value.get match {
+        case Success(resp) => resp.write(exchange)
+        case Failure(e) => throw e
+      }
     }
   }
 }
