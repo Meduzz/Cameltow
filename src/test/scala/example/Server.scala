@@ -1,10 +1,11 @@
 package example
 
 import se.chimps.cameltow.Cameltow
+import se.chimps.cameltow.framework.Response
 import se.chimps.cameltow.framework.feaures.Error
 import se.chimps.cameltow.framework.handlers.Methods._
 import se.chimps.cameltow.framework.handlers.{Action, Static}
-import se.chimps.cameltow.framework.{Html, Response, Text}
+import se.chimps.cameltow.framework.responsebuilders.{Ok, Error => FiveHundred}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -26,11 +27,11 @@ object Server extends App {
       </body>
     </html>
 
-    Response(200, body = Some(Html(body.toString())))
+    Ok.html(body.toString())
   }))
   routes.template("/p/{word}", Action.sync(req => {
     val word = req.query("word").getOrElse("MISSING")
-    Response(200, body = Some(Text(word)))
+    Ok.text(word)
   }))
   routes.prefix("/static", GET(Static.classpath(listDirectory = true)))
   routes.exact("/error", Action(req => Future.failed(new RuntimeException("Dying."))))
@@ -43,6 +44,6 @@ object Server extends App {
   server.start()
 
   def errorHandling:PartialFunction[Throwable, Response] = {
-    case e:Throwable => Response(500, body = Some(Text(e.getMessage)))
+    case e:Throwable => FiveHundred.text(e.getMessage)
   }
 }
