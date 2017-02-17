@@ -15,16 +15,6 @@ trait Routes {
     pathHandler.addPrefixPath("/", tpl)
   }
 
-  def routes(path:String):Routes = {
-    val child = new PathHandler()
-    pathHandler.addExactPath(path, child)
-    new RoutesImpl(child)
-  }
-
-  def routes(path:String, other:Routes):Unit = {
-    exact(path, other.handler)
-  }
-
   def handler:Handler
 }
 

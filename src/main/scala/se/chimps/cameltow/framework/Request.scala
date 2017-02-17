@@ -10,15 +10,27 @@ import scala.concurrent.Promise
 
 object Request {
   def apply(context:HttpServerExchange):Request = new Request(context)
-
-  implicit def seq2Option(data:Seq[String]):Option[String] = data.headOption
 }
 
 // TODO hide the exchange?
 class Request(val exchange:HttpServerExchange) {
   def method:String = exchange.getRequestMethod.toString
-  def header[T](name:String)(implicit func:(Seq[String])=>T):T = func(exchange.getRequestHeaders.get(name).asScala)
-  def query[T](name:String)(implicit func:(Seq[String])=>T):T = func(exchange.getQueryParameters.get(name).asScala.toSeq)
+  def header(name:String):Option[String] = headerAll(name).headOption
+  def query(name:String):Option[String] = queryAll(name).headOption
+  def queryAll(name:String):Seq[String] = {
+    if (exchange.getQueryParameters.containsKey(name)) {
+      exchange.getQueryParameters.get(name).asScala.toSeq
+    } else {
+      Seq()
+    }
+  }
+  def headerAll(name:String):Seq[String] = {
+    if (exchange.getRequestHeaders.contains(name)) {
+      exchange.getRequestHeaders.get(name).asScala
+    } else {
+      Seq()
+    }
+  }
   def cookie(name:String):Cookie = new Cookie(exchange.getRequestCookies.get(name))
   def body:RequestBody = {
     if (exchange.getAttachment(FormDataParser.FORM_DATA) != null) {

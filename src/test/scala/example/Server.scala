@@ -1,7 +1,6 @@
 package example
 
 import se.chimps.cameltow.Cameltow
-import se.chimps.cameltow.framework.Request._
 import se.chimps.cameltow.framework.feaures.Error
 import se.chimps.cameltow.framework.handlers.Methods._
 import se.chimps.cameltow.framework.handlers.{Action, Static}
@@ -13,11 +12,6 @@ import scala.concurrent.Future
 object Server extends App {
 
   val routes = Cameltow.routes()
-  val admin = Cameltow.routes()
-
-  admin.exact("/", Action.sync(req => {
-    Response(200, body = Some(Text("Admin area")))
-  }))
 
   routes.exact("/", GET(Action.sync { req =>
     val body = <html>
@@ -40,8 +34,6 @@ object Server extends App {
   }))
   routes.prefix("/static", GET(Static.classpath(listDirectory = true)))
   routes.exact("/error", Action(req => Future.failed(new RuntimeException("Dying."))))
-
-  routes.routes("/admin", admin)
 
   val server = Cameltow.defaults()
     .activate(Error(errorHandling))

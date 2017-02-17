@@ -58,10 +58,8 @@ trait Builder {
   val routes = Cameltow.routes()
 
   routes.get(/, Handler)
-  rotes.get(/static/, Static.dir|file|classpath(/assets)) // funky shorthand solution to a semi complex problem
-  val group = routes.group(/group) // translates into a RoutingHandler
-  group.get(/, Handler)
-  group.get(/secret,Authorize(delegate)(Cached(Action))) // this type of chaining would be awesome!.. but also awfully close to feature creep.
+  routes.get(/static/, Static.dir|file|classpath(/assets)) // funky shorthand solution to a semi complex problem
+  routes.get(/secret,Authorize(delegate)(Cached(Action))) // this type of chaining would be awesome!.. but also awfully close to feature creep.
 
   Action((Request)=>Future[Response])
 
@@ -71,23 +69,22 @@ trait Builder {
   val server = Cameltow.listen(port, host = 0.0.0.0)
   server.stop()
 
-  // TBD start.
   Cameltow.activate(WS)
   Cameltow.activate(HTTP2)
   Cameltow.activate(Undertow.featureX)
   Cameltow.activate(Undertow.100accept(max-size) // <- must generate a predicate, which are sort of painful.
-  // TBD end.
 
-  val req = Request(body:Option[Body])
+  val req = Request()
   val pathParam = req.path(name) // might be merged with query due to (PathTemplateHandler.rewriteQueryParameters)
   val cookieParam = req.cookie(name):Seq[String]
   val queryParam = req.query(name):Seq[String]
   val headerParam = req.header(name)
+  val body = req.body
 
   // TODO Create an object with the most common & funky header-names.
   // TODO Create a trait with ResponseBuilders.
 
-  trait Body
+  trait RequestBody
   Form(kv:Map[String, Seq[String]]) extends Body
   Encoded(bytes:Array[Byte]) extends Body
   Stream(chunks:Queue[Array[Byte]]) extends Body
