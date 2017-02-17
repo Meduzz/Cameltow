@@ -49,7 +49,7 @@ class Request(val exchange:HttpServerExchange) {
           }
         }).toSeq
       })
-      Form(it.zip(formItems).toMap)
+      Form(data.iterator().asScala.zip(formItems).toMap)
     } else if (exchange.getRequestHeaders.contains("Content-Encoding") && exchange.getRequestHeaders.get("Content-Encoding").contains("chunked")) {
       // Stream?
       val queue = Queue[Array[Byte]]()

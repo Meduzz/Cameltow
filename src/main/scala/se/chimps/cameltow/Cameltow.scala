@@ -81,11 +81,12 @@ trait Builder {
   val headerParam = req.header(name)
   val body = req.body
 
-  // TODO Create an object with the most common & funky header-names.
-  // TODO Create a trait with ResponseBuilders.
-
   trait RequestBody
   Form(kv:Map[String, Seq[String]]) extends Body
   Encoded(bytes:Array[Byte]) extends Body
   Stream(chunks:Queue[Array[Byte]]) extends Body
+
+  // TODO Create an object with the most common & funky header-names.
+  // TODO Create a feature that sort out encoding issues (make things utf-8)
+  // TODO Are we only using IoThreads?
  */

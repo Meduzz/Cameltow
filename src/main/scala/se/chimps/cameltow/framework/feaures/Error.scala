@@ -7,6 +7,7 @@ import se.chimps.cameltow.framework.{Feature, Response}
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.ExecutionContext.Implicits.global
 
+// TODO using exchange.dispatch in a child-handler will break/circumvent this handler.
 object Error {
   def apply(func:PartialFunction[Throwable, Response]):Error = new Error(func)
 }

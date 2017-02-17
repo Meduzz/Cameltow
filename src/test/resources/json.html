@@ -24,7 +24,7 @@
                             $("#response").text("Success: "+data.text);
                         }, error:function(xhr, error, text){
                             $("#response").text("Error: "+text);
-                        }, headers:{"content-type":"application/json"}
+                        }, headers:{"content-type":"application/x-www-form-urlencoded"}
                     });
                     return false;
                 });
