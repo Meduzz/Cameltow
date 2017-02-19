@@ -2,7 +2,6 @@ package example
 
 import se.chimps.cameltow.Cameltow
 import se.chimps.cameltow.framework.feaures.Error
-import se.chimps.cameltow.framework.handlers.Methods._
 import se.chimps.cameltow.framework.handlers.{Action, Static}
 import se.chimps.cameltow.framework.responsebuilders.{BadRequest, Ok, Error => FiveHundred}
 import se.chimps.cameltow.framework.{Form, FormItem, Response}
@@ -14,7 +13,8 @@ object Server extends App {
 
   val routes = Cameltow.routes()
 
-  routes.exact("/", GET(Action.sync { req =>
+  // TODO åäö are garbled
+  routes.GET("/", Action.sync { req =>
     val body = <html>
       <head>
         <title>Hello!</title>
@@ -28,14 +28,21 @@ object Server extends App {
     </html>
 
     Ok.html(body.toString())
+  })
+
+  routes.GET("/p/:dir/:file(.*[.js|.css]+)", Action.sync(req => {
+    val dir = req.pathParam("dir")
+    val file = req.pathParam("file")
+    Ok.text(s"Looking for $file in $dir.")
   }))
-  routes.template("/p/{word}", Action.sync(req => {
-    val word = req.query("word").getOrElse("MISSING")
-    Ok.text(word)
-  }))
-  routes.prefix("/static", GET(Static.classpath(listDirectory = true)))
-  routes.exact("/error", Action(req => Future.failed(new RuntimeException("Dying."))))
-  routes.exact("/json", POST(Action.sync(req => {
+
+  // my regex are not strong enough to wire these two in one go.
+  routes.GET("/static/", Static.classpath(listDirectory = true))
+  routes.GET("/static/:file(.*)", Static.classpath())
+
+  routes.GET("/error", Action(req => Future.failed(new RuntimeException("Dying."))))
+
+  routes.POST("/json", Action.sync(req => {
     req.body match {
       case Form(data) => {
         data("text").head match {
@@ -44,9 +51,9 @@ object Server extends App {
           case _ => BadRequest.text("I dont understand.")
         }
       }
-      case any => BadRequest.text("fix your content-type.")
+      case any => BadRequest.text("Fix your content-type.")
     }
-  })))
+  }))
 
   val server = Cameltow.defaults()
     .activate(Error(errorHandling))

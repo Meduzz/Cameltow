@@ -5,16 +5,24 @@ import io.undertow.server.HttpServerExchange
 import io.undertow.server.handlers.form.FormDataParser
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable.Queue
+import scala.collection.mutable
 import scala.concurrent.Promise
 
 object Request {
   def apply(context:HttpServerExchange):Request = new Request(context)
 }
 
-// TODO hide the exchange?
 class Request(val exchange:HttpServerExchange) {
   def method:String = exchange.getRequestMethod.toString
+  def pathParam(name:String):String = {
+    val params = exchange.getPathParameters.get(name)
+
+    if (params.size() > 0) {
+      params.getFirst
+    } else {
+      null
+    }
+  }
   def header(name:String):Option[String] = headerAll(name).headOption
   def query(name:String):Option[String] = queryAll(name).headOption
   def queryAll(name:String):Seq[String] = {
@@ -52,10 +60,10 @@ class Request(val exchange:HttpServerExchange) {
       Form(data.iterator().asScala.zip(formItems).toMap)
     } else if (exchange.getRequestHeaders.contains("Content-Encoding") && exchange.getRequestHeaders.get("Content-Encoding").contains("chunked")) {
       // Stream?
-      val queue = Queue[Array[Byte]]()
+      val queue = mutable.Queue[Array[Byte]]()
       exchange.getRequestReceiver.receivePartialBytes(new PartialBytesCallback {
         var size = 1
-        override def handle(exchange: HttpServerExchange, message: Array[Byte], last: Boolean) = {
+        override def handle(exchange: HttpServerExchange, message: Array[Byte], last: Boolean):Unit = {
           queue.enqueue(message)
           if (!last) {
             size = size + 1
@@ -69,7 +77,7 @@ class Request(val exchange:HttpServerExchange) {
     } else {
       val promise = Promise[Array[Byte]]()
       exchange.getRequestReceiver.receiveFullBytes(new FullBytesCallback {
-        override def handle(exchange: HttpServerExchange, message: Array[Byte]) = promise.success(message)
+        override def handle(exchange: HttpServerExchange, message: Array[Byte]):Unit = promise.success(message)
       })
       Encoded(promise.future)
     }

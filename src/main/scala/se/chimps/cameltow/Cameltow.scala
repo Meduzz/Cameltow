@@ -2,13 +2,13 @@ package se.chimps.cameltow
 
 import io.undertow.Undertow
 import io.undertow.server.HttpHandler
-import io.undertow.server.handlers.{PathHandler, ResponseCodeHandler}
+import io.undertow.server.handlers.ResponseCodeHandler
 import se.chimps.cameltow.framework.feaures.{GracefulShutdown, Gzip, ParseForms}
-import se.chimps.cameltow.framework.routes.{Routes, RoutesImpl}
+import se.chimps.cameltow.framework.routes.{Routes, RoutingImpl}
 import se.chimps.cameltow.framework.{Feature, Handler}
 
 object Cameltow {
-  def routes():Routes = new RoutesImpl(new PathHandler())
+  def routes():Routes = new RoutingImpl
   def defaults():Builder = {
     val defaults = Map("GracefulShutdown" -> GracefulShutdown(), "Gzip" -> Gzip(), "ParseForms" -> ParseForms())
     new Cameltow(defaults)
@@ -88,5 +88,7 @@ trait Builder {
 
   // TODO Create an object with the most common & funky header-names.
   // TODO Create a feature that sort out encoding issues (make things utf-8)
-  // TODO Are we only using IoThreads?
+  // TODO Are we only using IoThreads? Could be an automatic Feature style solution to this?
+  // TODO add an apply(ResponseBody) method to all response builders that takes a body.
+  // TODO add feature for requestlogging, nothing verbose, only the common stuff.
  */
