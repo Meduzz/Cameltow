@@ -1,15 +1,20 @@
 package example
 
+import java.util.concurrent.TimeUnit
+
 import se.chimps.cameltow.Cameltow
-import se.chimps.cameltow.framework.feaures.Error
+import se.chimps.cameltow.framework.feaures.{Error, RequestLogging}
 import se.chimps.cameltow.framework.handlers.{Action, Static}
 import se.chimps.cameltow.framework.responsebuilders.{BadRequest, Ok, Error => FiveHundred}
 import se.chimps.cameltow.framework.{Form, FormItem, Response}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 
 object Server extends App {
+
+  implicit val timeout = Duration(1L, TimeUnit.SECONDS)
 
   val routes = Cameltow.routes()
 
@@ -57,6 +62,7 @@ object Server extends App {
 
   val server = Cameltow.defaults()
     .activate(Error(errorHandling))
+    .activate(RequestLogging())
     .handler(routes.handler)
     .listen()
 

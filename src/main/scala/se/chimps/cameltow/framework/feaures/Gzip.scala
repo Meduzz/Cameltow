@@ -12,7 +12,7 @@ object Gzip {
 class Gzip extends Feature {
   private var next:HttpHandler = _
 
-  override private[cameltow] def httpHandler = new EncodingHandler.Builder().build(null).wrap(next)
+  override def httpHandler:HttpHandler = new EncodingHandler.Builder().build(null).wrap(next)
 
-  override private[cameltow] def setNext(handler: HttpHandler) = next = handler
+  override def setNext(handler: HttpHandler):Unit = next = handler
 }

@@ -46,6 +46,7 @@ case class Response(code:Int, headers:Map[String, String] = Map(), body:Option[R
         exchange.getResponseSender.send(j.content)
       }
       case None =>
+      case _ => // TODO do we need a way to inject stuff here?
     }
   }
 }

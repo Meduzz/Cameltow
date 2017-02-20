@@ -3,6 +3,7 @@ package se.chimps.cameltow
 import io.undertow.Undertow
 import io.undertow.server.HttpHandler
 import io.undertow.server.handlers.ResponseCodeHandler
+import org.slf4j.LoggerFactory
 import se.chimps.cameltow.framework.feaures.{GracefulShutdown, Gzip, ParseForms}
 import se.chimps.cameltow.framework.routes.{Routes, RoutingImpl}
 import se.chimps.cameltow.framework.{Feature, Handler}
@@ -17,6 +18,8 @@ object Cameltow {
 }
 
 class Cameltow(private var features:Map[String, Feature]) extends Builder {
+  val log = LoggerFactory.getLogger("cameltow")
+
   private var handler:Option[Handler] = None
 
   override def handler(handler: Handler): Builder = {
@@ -25,6 +28,7 @@ class Cameltow(private var features:Map[String, Feature]) extends Builder {
   }
 
   override def listen(port: Int, host: String): Undertow = {
+    log.info(s"Server listening on $host:$port.")
     Undertow.builder()
       .setHandler(featuresAsHandler)
       .addHttpListener(port, host)
@@ -86,7 +90,6 @@ trait Builder {
   Encoded(bytes:Array[Byte]) extends Body
   Stream(chunks:Queue[Array[Byte]]) extends Body
 
-  // TODO add feature for requestlogging, nothing verbose, only the common stuff.
   // TODO Create a feature that sort out encoding issues (make things utf-8)
   // TODO Are we only using IoThreads? Could be an automatic Feature style solution to this?
   // TODO Create an object with the most common & funky header-names.

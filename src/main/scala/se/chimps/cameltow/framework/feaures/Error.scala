@@ -17,7 +17,7 @@ class Error(func:PartialFunction[Throwable, Response]) extends Feature {
 
   private val log = LoggerFactory.getLogger("cameltow.error")
 
-  override private[cameltow] def httpHandler:HttpHandler = new HttpHandler {
+  override def httpHandler:HttpHandler = new HttpHandler {
     override def handleRequest(exchange: HttpServerExchange):Unit = {
       Try[Unit](next.handleRequest(exchange)) match { // is always a Success....
         case Failure(e) => {
@@ -29,5 +29,5 @@ class Error(func:PartialFunction[Throwable, Response]) extends Feature {
     }
   }
 
-  override private[cameltow] def setNext(handler:HttpHandler):Unit = next = handler
+  override def setNext(handler:HttpHandler):Unit = next = handler
 }

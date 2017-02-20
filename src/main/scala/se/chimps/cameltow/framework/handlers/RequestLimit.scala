@@ -1,5 +1,6 @@
 package se.chimps.cameltow.framework.handlers
 
+import io.undertow.server.HttpHandler
 import io.undertow.server.handlers.RequestLimitingHandler
 import se.chimps.cameltow.framework.Handler
 
@@ -8,6 +9,6 @@ object RequestLimit {
 }
 
 class RequestLimit(val maxConcurrentRequests:Int, val next:Handler) extends Handler {
-  override private[cameltow] def httpHandler =
+  override def httpHandler:HttpHandler =
     new RequestLimitingHandler(maxConcurrentRequests, next.httpHandler)
 }

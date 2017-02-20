@@ -3,8 +3,9 @@ package se.chimps.cameltow.framework.handlers
 import java.io.File
 import java.nio.file.Path
 
+import io.undertow.server.HttpHandler
 import io.undertow.server.handlers.cache.DirectBufferCache
-import io.undertow.server.handlers.resource.{CachingResourceManager, ClassPathResourceManager, FileResourceManager, PathResourceManager, ResourceHandler => UndertowResourceHandler, ResourceManager}
+import io.undertow.server.handlers.resource.{CachingResourceManager, ClassPathResourceManager, FileResourceManager, PathResourceManager, ResourceManager, ResourceHandler => UndertowResourceHandler}
 import org.xnio.BufferAllocator
 import se.chimps.cameltow.framework.Handler
 
@@ -18,14 +19,14 @@ object Static {
 }
 
 class StaticFileHandler(val file:File) extends Handler {
-  override private[cameltow] def httpHandler = {
+  override def httpHandler:UndertowResourceHandler = {
     val manager = new FileResourceManager(file, -1L)
     ResourceHandler(manager)
   }
 }
 
 class StaticPathHandler(val path:Path, welcomeFiles:Seq[String], listDirectory:Boolean, caching:Option[Caching]) extends Handler {
-  override private[cameltow] def httpHandler = {
+  override def httpHandler:UndertowResourceHandler = {
     val manager = new PathResourceManager(path, 0L)
 
     val handler = ResourceHandler(caching.map(_.cache(manager)).getOrElse(manager))
@@ -41,7 +42,7 @@ class StaticPathHandler(val path:Path, welcomeFiles:Seq[String], listDirectory:B
 }
 
 class ClasspathHandler(val prefix:String, welcomeFiles:Seq[String], listDirectory:Boolean, caching:Option[Caching]) extends Handler {
-  override private[cameltow] def httpHandler = {
+  override def httpHandler:HttpHandler = {
     val manager = new ClassPathResourceManager(classOf[ClasspathHandler].getClassLoader, prefix)
 
     val handler = ResourceHandler(caching.map(_.cache(manager)).getOrElse(manager))

@@ -11,10 +11,10 @@ object ParseForms {
 class ParseForms extends Feature {
   private var next:HttpHandler = _
 
-  override private[cameltow] def httpHandler = {
+  override def httpHandler:HttpHandler = {
     val handler = new EagerFormParsingHandler()
     handler.setNext(next)
   }
 
-  override private[cameltow] def setNext(handler: HttpHandler) = next = handler
+  override def setNext(handler: HttpHandler):Unit = next = handler
 }

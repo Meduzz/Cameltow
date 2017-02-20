@@ -1,6 +1,7 @@
 package se.chimps.cameltow.framework.routes
 
 import io.undertow.server.{HttpHandler, HttpServerExchange}
+import org.slf4j.LoggerFactory
 import se.chimps.cameltow.framework.Handler
 import se.chimps.cameltow.framework.routes.routing.Tree
 
@@ -10,6 +11,8 @@ trait Routes {
 
   private[cameltow] var tree = new Tree
 
+  protected val log = LoggerFactory.getLogger("cameltow")
+
   def GET(route:String, handler:Handler):Unit = addRoute("GET", route, handler)
   def POST(route:String, handler: Handler):Unit = addRoute("POST", route, handler)
   def PUT(route:String, handler: Handler):Unit = addRoute("PUT", route, handler)
@@ -18,11 +21,16 @@ trait Routes {
   def PATCH(route:String, handler: Handler):Unit = addRoute("PATCH", route, handler)
 
   // TODO to support route groups, I need a way to create Routes without a method.
-  // TODO log all routes recorded on startup.
 
   private def addRoute(method:String, url:String, handler:Handler):Unit = {
     val (regex, params) = regexify(url)
     val route = Route(url, regex, params, method, handler)
+
+    if (log.isDebugEnabled) {
+      log.debug(s"$method $url ($regex) ${handler.getClass.getSimpleName}")
+    } else {
+      log.info(s"$method $url ${handler.getClass.getSimpleName}")
+    }
 
     val newUrl = if (url.startsWith("/")) {
       url.substring(1)
@@ -80,7 +88,7 @@ case class Route(raw:String, route:Regex, names:Seq[String], method:String, acti
 
 class RoutingImpl extends Routes {
   override def handler: Handler = new Handler {
-    override private[cameltow] def httpHandler: HttpHandler = new HttpHandler {
+    override def httpHandler: HttpHandler = new HttpHandler {
       override def handleRequest(exchange: HttpServerExchange): Unit = {
         val url = if (exchange.getRelativePath.isEmpty) {
           exchange.getRequestPath

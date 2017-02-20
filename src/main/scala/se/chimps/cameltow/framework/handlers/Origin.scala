@@ -1,5 +1,6 @@
 package se.chimps.cameltow.framework.handlers
 
+import io.undertow.server.HttpHandler
 import io.undertow.server.handlers.OriginHandler
 import se.chimps.cameltow.framework.Handler
 
@@ -8,7 +9,7 @@ object Origin {
 }
 
 class Origin(requireOriginHeader:Boolean, origins:Seq[String], next:Handler) extends Handler {
-  override private[cameltow] def httpHandler = {
+  override def httpHandler:HttpHandler = {
     val handler = new OriginHandler()
 
     handler.setRequireOriginHeader(requireOriginHeader)

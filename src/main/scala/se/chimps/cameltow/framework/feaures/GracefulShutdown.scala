@@ -11,7 +11,7 @@ object GracefulShutdown {
 class GracefulShutdown extends Feature {
   private var next:HttpHandler = _
 
-  override private[cameltow] def httpHandler = new GracefulShutdownHandler(next)
+  override def httpHandler:HttpHandler = new GracefulShutdownHandler(next)
 
-  override private[cameltow] def setNext(handler: HttpHandler) = next = handler
+  override def setNext(handler: HttpHandler):Unit = next = handler
 }
