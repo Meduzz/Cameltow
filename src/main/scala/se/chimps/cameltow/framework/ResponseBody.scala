@@ -4,12 +4,12 @@ trait ResponseBody[T] {
   def contentType:Option[String]
   def content:T
 }
-case class Text(content:String) extends ResponseBody[String] {
-  override def contentType: Option[String] = Some("text/plain")
+case class Text(content:String, encoding:String = "utf-8") extends ResponseBody[String] {
+  override def contentType: Option[String] = Some(s"text/plain; charset=$encoding")
 }
-case class Html(content:String) extends ResponseBody[String] {
-  override def contentType: Option[String] = Some("text/html")
+case class Html(content:String, encoding:String = "utf-8") extends ResponseBody[String] {
+  override def contentType: Option[String] = Some(s"text/html; charset=$encoding")
 }
-case class Json(content:String) extends ResponseBody[String] {
-  override def contentType: Option[String] = Some("application/json")
+case class Json(content:String, encoding:String = "utf-8") extends ResponseBody[String] {
+  override def contentType: Option[String] = Some(s"application/json; charset=$encoding")
 }

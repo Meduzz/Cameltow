@@ -23,6 +23,7 @@ class Request(val exchange:HttpServerExchange) {
       null
     }
   }
+  def charset:String = exchange.getRequestCharset
   def header(name:String):Option[String] = headerAll(name).headOption
   def query(name:String):Option[String] = queryAll(name).headOption
   def queryAll(name:String):Seq[String] = {

@@ -3,7 +3,6 @@ package example
 import java.util.concurrent.TimeUnit
 
 import se.chimps.cameltow.Cameltow
-import se.chimps.cameltow.framework.feaures.{Error, RequestLogging}
 import se.chimps.cameltow.framework.handlers.{Action, Static}
 import se.chimps.cameltow.framework.responsebuilders.{BadRequest, Ok, Error => FiveHundred}
 import se.chimps.cameltow.framework.{Form, FormItem, Response}
@@ -18,14 +17,13 @@ object Server extends App {
 
   val routes = Cameltow.routes()
 
-  // TODO åäö are garbled
   routes.GET("/", Action.sync { req =>
     val body = <html>
       <head>
         <title>Hello!</title>
       </head>
       <body>
-        <h1>Hello!</h1>
+        <h1>Hellö!</h1>
         <div>
           <a href="/static/form.html">Form</a>
         </div>
@@ -51,8 +49,11 @@ object Server extends App {
     req.body match {
       case Form(data) => {
         data("text").head match {
-          // TODO åäö are garbled.
-          case FormItem(value) => Ok.json(s"""{"text":"$value"}""")
+          case FormItem(value) => {
+            // I guess this is the correct way to switch charset for a string.
+            val bytes = value.getBytes(req.charset)
+            Ok.json(s"""{"text":"${new String(bytes, "utf-8")}"}""")
+          }
           case _ => BadRequest.text("I dont understand.")
         }
       }
@@ -61,8 +62,6 @@ object Server extends App {
   }))
 
   val server = Cameltow.defaults()
-    .activate(Error(errorHandling))
-    .activate(RequestLogging())
     .handler(routes.handler)
     .listen()
 

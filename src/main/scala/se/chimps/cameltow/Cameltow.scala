@@ -4,14 +4,14 @@ import io.undertow.Undertow
 import io.undertow.server.HttpHandler
 import io.undertow.server.handlers.ResponseCodeHandler
 import org.slf4j.LoggerFactory
-import se.chimps.cameltow.framework.feaures.{GracefulShutdown, Gzip, ParseForms}
+import se.chimps.cameltow.framework.feaures.{GracefulShutdown, ParseForms, RequestLogging}
 import se.chimps.cameltow.framework.routes.{Routes, RoutingImpl}
 import se.chimps.cameltow.framework.{Feature, Handler}
 
 object Cameltow {
   def routes():Routes = new RoutingImpl
   def defaults():Builder = {
-    val defaults = Map("GracefulShutdown" -> GracefulShutdown(), "Gzip" -> Gzip(), "ParseForms" -> ParseForms())
+    val defaults = Map("GracefulShutdown" -> GracefulShutdown(), "RequestLogging" -> RequestLogging(), "ParseForms" -> ParseForms())
     new Cameltow(defaults)
   }
   def blank():Builder = new Cameltow(Map())
@@ -90,7 +90,6 @@ trait Builder {
   Encoded(bytes:Array[Byte]) extends Body
   Stream(chunks:Queue[Array[Byte]]) extends Body
 
-  // TODO Create a feature that sort out encoding issues (make things utf-8)
   // TODO Are we only using IoThreads? Could be an automatic Feature style solution to this?
   // TODO Create an object with the most common & funky header-names.
   // TODO Figure out a way to prioritize features and their internal order when added.
