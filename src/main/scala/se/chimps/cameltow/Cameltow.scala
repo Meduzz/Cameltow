@@ -86,9 +86,9 @@ trait Builder {
   Encoded(bytes:Array[Byte]) extends Body
   Stream(chunks:Queue[Array[Byte]]) extends Body
 
-  // TODO Create an object with the most common & funky header-names.
+  // TODO add feature for requestlogging, nothing verbose, only the common stuff.
   // TODO Create a feature that sort out encoding issues (make things utf-8)
   // TODO Are we only using IoThreads? Could be an automatic Feature style solution to this?
-  // TODO add an apply(ResponseBody) method to all response builders that takes a body.
-  // TODO add feature for requestlogging, nothing verbose, only the common stuff.
+  // TODO Create an object with the most common & funky header-names.
+  // TODO Figure out a way to prioritize features and their internal order when added.
  */

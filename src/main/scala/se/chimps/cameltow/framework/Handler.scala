@@ -10,5 +10,5 @@ object Handler {
 }
 
 trait Handler {
-  private[cameltow] def httpHandler:HttpHandler
+  def httpHandler:HttpHandler
 }
