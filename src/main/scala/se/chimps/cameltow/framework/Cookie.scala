@@ -1,9 +1,13 @@
 package se.chimps.cameltow.framework
 
-import io.undertow.server.handlers.{Cookie => Kaka}
+import java.util.Date
 
-class Cookie(original:Kaka)  {
-  // TODO impl.
+import io.undertow.server.handlers.{CookieImpl, Cookie => Kaka}
 
-  private[cameltow] def undertowCookie():Kaka = ???
+class Cookie(val name:String, val value:String, expires:Option[Date] = None) {
+  val undertowCookie = new CookieImpl(name, value)
+
+  expires.foreach(d => undertowCookie.setExpires(d))
+
+  def setPath(path:String):Unit = undertowCookie.setPath(path)
 }

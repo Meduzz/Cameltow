@@ -23,7 +23,7 @@ case class Response(code:Int, headers:Map[String, String] = Map(), body:Option[R
     exchange.setStatusCode(code)
 
     cookie match {
-      case Some(cookie:Cookie) => exchange.setResponseCookie(cookie.undertowCookie())
+      case Some(cookie:Cookie) => exchange.setResponseCookie(cookie.undertowCookie)
       case None =>
     }
 
