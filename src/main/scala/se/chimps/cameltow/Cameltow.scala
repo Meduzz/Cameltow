@@ -90,7 +90,6 @@ trait Builder {
   Encoded(bytes:Array[Byte]) extends Body
   Stream(chunks:Queue[Array[Byte]]) extends Body
 
-  // TODO Are we only using IoThreads? Could be an automatic Feature style solution to this?
   // TODO Create an object with the most common & funky header-names.
   // TODO Figure out a way to prioritize features and their internal order when added.
  */
