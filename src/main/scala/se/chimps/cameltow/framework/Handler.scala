@@ -7,6 +7,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object Handler {
   val NOT_FOUND:Handler = Action.sync(request => Response(404))
   val BAD_REQUEST:Handler = Action.sync(request => Response(400))
+  val UNAVAILABLE:Handler = Action.sync(request => Response(503))
 }
 
 trait Handler {

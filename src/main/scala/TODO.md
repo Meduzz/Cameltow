@@ -1,7 +1,6 @@
 ## Handlers
 
 * ProxyPeerAddressHandler (read x-forward etc and put in their expected headers)
-* ProxyHandler to proxy requests elsewhere.
 * CacheHandler could be nice with a cacheHandler, if it can be done in a neat api.
 
 ## Features
