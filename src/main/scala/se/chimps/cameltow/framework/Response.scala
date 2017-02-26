@@ -1,11 +1,13 @@
 package se.chimps.cameltow.framework
 
+import java.nio.ByteBuffer
+
 import io.undertow.server.HttpServerExchange
 import io.undertow.util.{Headers, HttpString}
 
 import scala.concurrent.ExecutionContext
 
-case class Response(code:Int, headers:Map[String, String] = Map(), body:Option[ResponseBody[_]] = None, cookie:Option[Cookie] = None) {
+case class Response(code:Int, headers:Map[String, String] = Map(), body:Option[ResponseBody[_]] = None) {
 
   def withHeader(header:String, value:String):Response =
     copy(headers = headers ++ Map(header -> value))
@@ -16,16 +18,8 @@ case class Response(code:Int, headers:Map[String, String] = Map(), body:Option[R
   def withBody(data:ResponseBody[_]):Response =
     copy(body = Some(data))
 
-  def withCookie(cookie: Cookie):Response =
-    copy(cookie = Some(cookie))
-
   private[cameltow] def write(exchange:HttpServerExchange)(implicit ec:ExecutionContext) = {
     exchange.setStatusCode(code)
-
-    cookie match {
-      case Some(cookie:Cookie) => exchange.setResponseCookie(cookie.undertowCookie)
-      case None =>
-    }
 
     headers.foreach(kv => {
       val (header, value) = kv
@@ -33,20 +27,15 @@ case class Response(code:Int, headers:Map[String, String] = Map(), body:Option[R
     })
 
     body match {
-      case Some(t:Text) => {
+      case Some(t:StringResponseBody) => {
         t.contentType.map(ct => exchange.getResponseHeaders.put(Headers.CONTENT_TYPE, ct))
-        exchange.getResponseSender.send(t.content)
+        exchange.getResponseSender.send(t())
       }
-      case Some(h:Html) => {
-        h.contentType.map(ct => exchange.getResponseHeaders.put(Headers.CONTENT_TYPE, ct))
-        exchange.getResponseSender.send(h.content)
-      }
-      case Some(j:Json) => {
-        j.contentType.map(ct => exchange.getResponseHeaders.put(Headers.CONTENT_TYPE, ct))
-        exchange.getResponseSender.send(j.content)
+      case Some(t:ByteResponseBody) => {
+        t.contentType.map(ct => exchange.getResponseHeaders.put(Headers.CONTENT_TYPE, ct))
+        exchange.getResponseSender.send(ByteBuffer.wrap(t()))
       }
       case None =>
-      case _ => // TODO do we need a way to inject stuff here?
     }
   }
 }

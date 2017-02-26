@@ -25,7 +25,16 @@ object Server extends App {
       <body>
         <h1>Hellö!</h1>
         <div>
-          <a href="/static/form.html">Form</a>
+          <a href="/static/json.html">Form</a>
+        </div>
+        <div>
+          <a href="/p/fake/file.css">Regexp routing</a>
+        </div>
+        <div>
+          <a href="/error">Error</a>
+        </div>
+        <div>
+          <a href="/static/">Static folder</a>
         </div>
       </body>
     </html>

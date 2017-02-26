@@ -9,13 +9,16 @@ object IpAclHandler {
 
   def delegate():IpDelegate = new IpDelegate
 
-  def apply(delegate: IpDelegate, handler:Handler):Handler =
+  def apply(delegate: IpDelegate, handler:Handler):Handler = {
+    new IpAclHandler(delegate, handler)
+  }
 }
 
-class IpAclHandler(delegate: IpDelegate) extends Handler {
+class IpAclHandler(delegate: IpDelegate, next:Handler) extends Handler {
   override def httpHandler: HttpHandler = {
     val handler = new IPAddressAccessControlHandler()
     delegate(handler)
+    handler.setNext(next.httpHandler)
     handler
   }
 }

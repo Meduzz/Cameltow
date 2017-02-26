@@ -61,10 +61,10 @@ TODO link to handlers package.
 
 ## Features
 
-In Cameltow there's a type of handlers 
-that's called features. Under the hood, these too 
-are handlers. But it does not make sense to set
-these up for each route, but rather something 
+In Cameltow there's another type of handlers 
+that is called features. Under the hood, these too 
+are handlers. But it does not make sense to add 
+these to each route manually, but rather something 
 you'd enable before you start defining your routes.
 Features are defined like this:
 
@@ -77,7 +77,7 @@ trait Feature {
 
 By starting Cameltow with ```Cameltow.defaults()```
 a couple of nice to have features have been enabled
-for you. Out of the box it'll enable:
+out of the box for you:
 
 * GracefulShutdown, that will drain requests before
 shutting down.

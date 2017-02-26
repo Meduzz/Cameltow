@@ -20,14 +20,14 @@ object Static {
 
 class StaticFileHandler(val file:File) extends Handler {
   override def httpHandler:UndertowResourceHandler = {
-    val manager = new FileResourceManager(file, -1L)
+    val manager = new FileResourceManager(file, 1024L)
     ResourceHandler(manager)
   }
 }
 
 class StaticPathHandler(val path:Path, welcomeFiles:Seq[String], listDirectory:Boolean, caching:Option[Caching]) extends Handler {
   override def httpHandler:UndertowResourceHandler = {
-    val manager = new PathResourceManager(path, 0L)
+    val manager = new PathResourceManager(path, 1024L)
 
     val handler = ResourceHandler(caching.map(_.cache(manager)).getOrElse(manager))
 

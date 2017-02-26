@@ -40,7 +40,6 @@ class Request(val exchange:HttpServerExchange) {
       Seq()
     }
   }
-  def cookie(name:String):Cookie = new Cookie(exchange.getRequestCookies.get(name))
   def body:RequestBody = {
     if (exchange.getAttachment(FormDataParser.FORM_DATA) != null) {
       // Form or File
