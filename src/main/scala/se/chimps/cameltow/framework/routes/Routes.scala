@@ -152,7 +152,9 @@ class RoutingImpl(val base:String = "/") extends Routes {
               })
 
               val newPath = if (action.names.nonEmpty && action.route.regex.split("/").reverse.head.contains(".*)")) {
-                var lastIndex = url.lastIndexOf("/")
+                val count = action.raw.split("/").length
+                val partialUrl = url.split("/").take(count).mkString("/")
+                var lastIndex = partialUrl.lastIndexOf("/")
                 if (lastIndex == -1) {
                   lastIndex = 0
                 }
