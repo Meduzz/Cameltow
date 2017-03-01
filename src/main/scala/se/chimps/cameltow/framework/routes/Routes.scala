@@ -13,6 +13,8 @@ trait Routes {
 
   protected val log = LoggerFactory.getLogger("cameltow")
 
+  def base:String
+
   def GET(route:String, handler:Handler):Unit = addRoute("GET", route, handler)
   def POST(route:String, handler: Handler):Unit = addRoute("POST", route, handler)
   def PUT(route:String, handler: Handler):Unit = addRoute("PUT", route, handler)
@@ -20,16 +22,26 @@ trait Routes {
   def HEAD(route:String, handler: Handler):Unit = addRoute("HEAD", route, handler)
   def PATCH(route:String, handler: Handler):Unit = addRoute("PATCH", route, handler)
 
-  // TODO to support route groups, I need a way to create Routes without a method.
+  def subroute(path:String):Routes = {
+    val r = new RoutingImpl(path)
+    addRoute("*", path, r.handler)
+    r
+  }
+
+  def subroute(path:String, func:(Routes)=>Handler):Routes = {
+    val r = new RoutingImpl(path)
+    addRoute("*", path, func(r))
+    r
+  }
 
   private def addRoute(method:String, url:String, handler:Handler):Unit = {
     val (regex, params) = regexify(url)
     val route = Route(url, regex, params, method, handler)
 
     if (log.isDebugEnabled) {
-      log.debug(s"$method $url ($regex) ${handler.getClass.getSimpleName}")
+      log.debug(s"$method ${append(url)} ($regex) ${handler.getClass.getSimpleName}")
     } else {
-      log.info(s"$method $url ${handler.getClass.getSimpleName}")
+      log.info(s"$method ${append(url)} ${handler.getClass.getSimpleName}")
     }
 
     val newUrl = if (url.startsWith("/")) {
@@ -81,12 +93,20 @@ trait Routes {
     }
   }
 
+  def append(path:String):String = {
+    if (base.length > 1) {
+      base ++ path
+    } else {
+      path
+    }
+  }
+
   def handler:Handler
 }
 
 case class Route(raw:String, route:Regex, names:Seq[String], method:String, action:Handler)
 
-class RoutingImpl extends Routes {
+class RoutingImpl(val base:String = "/") extends Routes {
   override def handler: Handler = new Handler {
     override def httpHandler: HttpHandler = new HttpHandler {
       override def handleRequest(exchange: HttpServerExchange): Unit = {
@@ -107,12 +127,20 @@ class RoutingImpl extends Routes {
         } else {
           newUrl
             .split("/")
-            .foldLeft(Seq(tree))((t, a) => t.flatMap(_.matches(a)))
+            .foldLeft(Seq(tree))((t, a) => t.flatMap(branch => {
+              val branches = branch.matches(a)
+
+              if (branches.isEmpty) {
+                Seq(branch)
+              } else {
+                branches
+              }
+            }))
             .flatMap(_.values())
         }
 
         val action = candidates
-          .filter(_.method == exchange.getRequestMethod.toString) // TODO add || _.method == "*" to handle route groups?
+          .filter(c => c.method == exchange.getRequestMethod.toString || c.method == "*")
           .find(action => { // TODO using find opens up a can of Action bingo. Not really a framework problem anyhow.
             val m = action.route.pattern.matcher(url)
 
@@ -140,6 +168,39 @@ class RoutingImpl extends Routes {
               }
 
               true
+            } else if (action.method == "*") {
+              val count = action.raw.split("/").length
+              val partialUrl = url.split("/").take(count).mkString("/")
+
+              val m = action.route.pattern.matcher(partialUrl)
+
+              if (m.matches()) {
+                val groupVals = (1 to m.groupCount()).map(i => m.group(i))
+                action.names.zip(groupVals).foreach(kv => {
+                  val (key, value) = kv
+                  exchange.addPathParam(key, value)
+                })
+
+                val newPath = if (action.names.nonEmpty && action.route.regex.split("/").reverse.head.contains(".*)")) {
+                  var lastIndex = partialUrl.lastIndexOf("/")
+                  if (lastIndex == -1) {
+                    lastIndex = 0
+                  }
+                  exchange.getRelativePath.drop(lastIndex)
+                } else {
+                  exchange.getRelativePath.drop(partialUrl.length)
+                }
+
+                if (newPath.isEmpty) {
+                  exchange.setRelativePath("/")
+                } else {
+                  exchange.setRelativePath(newPath)
+                }
+
+                true
+              } else {
+                false
+              }
             } else {
               false
             }

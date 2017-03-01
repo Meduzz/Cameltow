@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import se.chimps.cameltow.Cameltow
 import se.chimps.cameltow.framework.handlers.{Action, Static}
 import se.chimps.cameltow.framework.responsebuilders.{BadRequest, Ok, Error => FiveHundred}
-import se.chimps.cameltow.framework.{Form, FormItem, Response}
+import se.chimps.cameltow.framework.{Form, FormItem, Response, Text}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -69,6 +69,10 @@ object Server extends App {
       case any => BadRequest.text("Fix your content-type.")
     }
   }))
+
+  val sub = routes.subroute("/hello")
+
+  sub.GET("/world", Action.sync(req => Ok(Text("Hello world!"))))
 
   val server = Cameltow.defaults()
     .handler(routes.handler)

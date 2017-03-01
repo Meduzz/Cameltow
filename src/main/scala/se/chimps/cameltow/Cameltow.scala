@@ -9,7 +9,7 @@ import se.chimps.cameltow.framework.routes.{Routes, RoutingImpl}
 import se.chimps.cameltow.framework.{Feature, Handler}
 
 object Cameltow {
-  def routes():Routes = new RoutingImpl
+  def routes():Routes = new RoutingImpl()
   def defaults():Builder = {
     val defaults = Map("GracefulShutdown" -> GracefulShutdown(), "RequestLogging" -> RequestLogging(), "ParseForms" -> ParseForms())
     new Cameltow(defaults)
