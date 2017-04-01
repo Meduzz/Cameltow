@@ -5,5 +5,4 @@
 
 ## Features
 
-* ChannelUpgradeHandler (or what ever enables websocket and http2) (WebSocketText() & WebSocketBinary())
 * SessionAttachmentHandler perhaps with a delegate, based on undertow interfaces.
