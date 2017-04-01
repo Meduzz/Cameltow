@@ -1,0 +1,42 @@
+<html>
+    <head>
+        <title>Web sockets reverse echo</title>
+    </head>
+    <body>
+        <h3>Web sockets reverse echo</h3>
+        <script>
+            let socket;
+
+            if (window.WebSocket) {
+                socket = new WebSocket("ws://localhost:8080/chat");
+
+                socket.onopen = function(event) {
+                  document.getElementById("chat").append("Socket opened. ")
+                };
+                socket.onclose = function(event) {
+                  document.getElementById("chat").append("Socket closed. ")
+                };
+                socket.onmessage = function(event) {
+                    document.getElementById("chat").append(event.data+" ")
+                };
+            } else {
+              console.log("Your browser does not support web sockets")
+            }
+
+            function send(message) {
+              if (!window.WebSocket || socket.readyState != WebSocket.OPEN) {
+                return;
+              } else {
+                socket.send(message);
+              }
+            }
+        </script>
+        <form onsubmit="return false;">
+            <input type="text" name="message" value="Hello, World!"/>
+            <input type="button" value="Send Web Socket Data" onclick="send(this.form.message.value)"/>
+        </form>
+        <div id="chat">
+
+        </div>
+    </body>
+</html>

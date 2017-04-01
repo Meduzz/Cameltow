@@ -2,8 +2,9 @@ package example
 
 import java.util.concurrent.TimeUnit
 
+import io.undertow.websockets.core.{BufferedBinaryMessage, BufferedTextMessage, WebSocketChannel}
 import se.chimps.cameltow.Cameltow
-import se.chimps.cameltow.framework.handlers.{Action, Static}
+import se.chimps.cameltow.framework.handlers._
 import se.chimps.cameltow.framework.responsebuilders.{BadRequest, Ok, Error => FiveHundred}
 import se.chimps.cameltow.framework.{Form, FormItem, Response, Text}
 
@@ -68,6 +69,18 @@ object Server extends App {
       }
       case any => BadRequest.text("Fix your content-type.")
     }
+  }))
+
+  routes.GET("/chat", WebSocket(new WebSocketListenerDelegate {
+    override def onError(channel: WebSocketChannel, error: Throwable): Unit = {}
+
+    override def onFullBinaryMessage(channel: WebSocketChannel, message: BufferedBinaryMessage): Unit = {}
+
+    override def onFullTextMessage(channel: WebSocketChannel, message: BufferedTextMessage): Unit = {
+      text(message.getData.reverse, channel)
+    }
+
+    override def onFullCloseMessage(channel: WebSocketChannel, message: BufferedBinaryMessage): Unit = {}
   }))
 
   val sub = routes.subroute("/hello")
