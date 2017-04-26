@@ -10,8 +10,8 @@ import se.chimps.cameltow.framework.{Feature, Handler}
 
 object Cameltow {
   def routes():Routes = new RoutingImpl()
-  def defaults():Builder = {
-    val defaults = Map("GracefulShutdown" -> GracefulShutdown(), "RequestLogging" -> RequestLogging(), "ParseForms" -> ParseForms())
+  def defaults(appName:String = "default"):Builder = {
+    val defaults = Map("GracefulShutdown" -> GracefulShutdown(), "RequestLogging" -> RequestLogging(appName), "ParseForms" -> ParseForms())
     new Cameltow(defaults)
   }
   def blank():Builder = new Cameltow(Map())
@@ -89,7 +89,4 @@ trait Builder {
   Form(kv:Map[String, Seq[String]]) extends Body
   Encoded(bytes:Array[Byte]) extends Body
   Stream(chunks:Queue[Array[Byte]]) extends Body
-
-  // TODO Create an object with the most common & funky header-names.
-  // TODO Figure out a way to prioritize features and their internal order when added.
  */

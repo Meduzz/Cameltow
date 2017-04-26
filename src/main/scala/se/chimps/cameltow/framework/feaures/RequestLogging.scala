@@ -8,11 +8,11 @@ import se.chimps.cameltow.framework.Feature
 import scala.math.BigDecimal.RoundingMode
 
 object RequestLogging {
-  def apply() = new RequestLogging
+  def apply(appName:String) = new RequestLogging(appName)
 }
 
-class RequestLogging extends Feature {
-  private val log = LoggerFactory.getLogger("cameltow.request")
+class RequestLogging(appName:String) extends Feature {
+  private val log = LoggerFactory.getLogger(s"$appName.cameltow.request")
 
   private var next:HttpHandler = _
 
