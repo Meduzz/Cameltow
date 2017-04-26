@@ -21,6 +21,7 @@ class RequestLogging(appName:String) extends Feature {
       val start = System.nanoTime()
       val method = exchange.getRequestMethod.toString
       val url = exchange.getRequestPath
+      val host = exchange.getHostName
 
       exchange.addExchangeCompleteListener(new ExchangeCompletionListener {
         override def exchangeEvent(exchange: HttpServerExchange, nextListener: NextListener):Unit = {
@@ -30,7 +31,7 @@ class RequestLogging(appName:String) extends Feature {
 
           val time = (timeRaw / 1000000).setScale(2, RoundingMode.HALF_UP)
 
-          log.info(s"$method $url [$code] ($time ms)")
+          log.info(s"$host $method $url [$code] ($time ms)")
           nextListener.proceed()
         }
       })

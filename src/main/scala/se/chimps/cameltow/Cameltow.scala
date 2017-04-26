@@ -5,11 +5,13 @@ import io.undertow.server.HttpHandler
 import io.undertow.server.handlers.ResponseCodeHandler
 import org.slf4j.LoggerFactory
 import se.chimps.cameltow.framework.feaures.{GracefulShutdown, ParseForms, RequestLogging}
+import se.chimps.cameltow.framework.handlers.VirtualHosts
 import se.chimps.cameltow.framework.routes.{Routes, RoutingImpl}
 import se.chimps.cameltow.framework.{Feature, Handler}
 
 object Cameltow {
   def routes():Routes = new RoutingImpl()
+  def virtualHosts():VirtualHosts = VirtualHosts()
   def defaults(appName:String = "default"):Builder = {
     val defaults = Map("GracefulShutdown" -> GracefulShutdown(), "RequestLogging" -> RequestLogging(appName), "ParseForms" -> ParseForms())
     new Cameltow(defaults)
