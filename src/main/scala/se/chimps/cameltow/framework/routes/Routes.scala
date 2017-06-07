@@ -34,7 +34,7 @@ trait Routes {
     r
   }
 
-  private def addRoute(method:String, url:String, handler:Handler):Unit = {
+  def addRoute(method:String, url:String, handler:Handler):Unit = {
     val (regex, params) = regexify(url)
     val route = Route(url, regex, params, method, handler)
 

@@ -30,6 +30,8 @@ class Cameltow(private var features:Map[String, Feature]) extends Builder {
   }
 
   override def listen(port: Int, host: String): Undertow = {
+    log.info("-----")
+    log.info("Enabled modules [{}]", features.keys.mkString(", "))
     log.info(s"Server listening on $host:$port.")
     Undertow.builder()
       .setHandler(featuresAsHandler)
