@@ -16,6 +16,7 @@ class ProxyDelegate {
   val client = new LoadBalancingProxyClient()
 
   def addHost(url:String):Unit = client.addHost(new URI(url))
+  def removeHost(url:String):Unit = client.removeHost(new URI(url))
 }
 
 class ProxyHandler(val delegate: ProxyDelegate, val requestTimeoutMs:Int, val fallback:Handler) extends Handler {
