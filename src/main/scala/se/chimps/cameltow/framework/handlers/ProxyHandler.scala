@@ -9,7 +9,7 @@ import se.chimps.cameltow.framework.Handler
 
 object ProxyHandler {
   def delegate():ProxyDelegate = new ProxyDelegate
-  def apply(delegate: ProxyDelegate, fallback:Handler = Handler.UNAVAILABLE):ProxyHandler = new ProxyHandler(delegate, fallback)
+  def apply(delegate: ProxyDelegate, requestTimeoutMs:Int = 3000, fallback:Handler = Handler.UNAVAILABLE):ProxyHandler = new ProxyHandler(delegate, requestTimeoutMs, fallback)
 }
 
 class ProxyDelegate {
@@ -18,8 +18,8 @@ class ProxyDelegate {
   def addHost(url:String):Unit = client.addHost(new URI(url))
 }
 
-class ProxyHandler(val delegate: ProxyDelegate, val fallback:Handler) extends Handler {
+class ProxyHandler(val delegate: ProxyDelegate, val requestTimeoutMs:Int, val fallback:Handler) extends Handler {
   override def httpHandler: HttpHandler = {
-    new proxy.ProxyHandler(delegate.client, 3, fallback.httpHandler)
+    new proxy.ProxyHandler(delegate.client, requestTimeoutMs, fallback.httpHandler)
   }
 }

@@ -23,7 +23,9 @@ object VirtualHost extends App {
   vhosts.addHandler("host1", host1.handler)
   vhosts.addHandler("host2", host2.handler)
 
-  Cameltow.defaults()
+  val server = Cameltow.defaults()
     .handler(vhosts.handler)
     .listen()
+
+  server.start()
 }

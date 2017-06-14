@@ -1,6 +1,6 @@
 name := "Cameltow"
 
-version := "2.0-beta5"
+version := "2.0-beta6"
 
 organization := "se.chimps.cameltow"
 
