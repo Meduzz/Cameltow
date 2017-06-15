@@ -27,6 +27,17 @@ class Tree {
 
   def add(route: Route):Unit = data = data ++ Seq(route)
 
+  def remove(url:String):Unit = {
+    val split = url.split("/")
+
+    if (split.length > 1) {
+      matches(split.head).foreach(_.remove(split.tail.mkString("/")))
+    } else {
+      data = data.filterNot(_.raw == url)
+      branches = branches.filterKeys(!_.equals(url))
+    }
+  }
+
   def values():Seq[Route] = data
 
   private def translate(in:String):String = {

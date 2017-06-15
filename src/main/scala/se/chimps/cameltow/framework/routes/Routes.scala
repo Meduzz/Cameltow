@@ -58,6 +58,18 @@ trait Routes {
     }
   }
 
+  def dropRoute(url:String):Unit = {
+    val newUrl = if (url.startsWith("/")) {
+      url.substring(1)
+    } else {
+      url
+    }
+
+    if (newUrl.nonEmpty) {
+      tree.remove(newUrl)
+    }
+  }
+
   private def regexify(url:String):(Regex, Seq[String]) = {
     if (url.contains(":")) {
       var paramNames = Seq[String]()
