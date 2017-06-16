@@ -31,10 +31,10 @@ class Tree {
     val split = url.split("/")
 
     if (split.length > 1) {
-      matches(split.head).foreach(_.remove(split.tail.mkString("/")))
+      matches(translate(split.head)).foreach(_.remove(split.tail.mkString("/")))
     } else {
-      data = data.filterNot(_.raw == url)
-      branches = branches.filterKeys(!_.equals(url))
+      data = data.filterNot(_.raw == translate(url))
+      branches = branches.filterKeys(_ != translate(url))
     }
   }
 

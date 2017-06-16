@@ -52,6 +52,10 @@ class TreeTest extends FunSuite with Matchers {
     tree.grow("a")
     val b = tree.grow("b")
     tree.grow("c").grow("d")
+    tree.grow(":any(.*)")
+
+    tree.remove(":any(.*)")
+    tree.matches("g").headOption shouldBe empty
 
     tree.matches("c").head.matches("d").headOption shouldNot be(empty)
     tree.remove("c/d")
