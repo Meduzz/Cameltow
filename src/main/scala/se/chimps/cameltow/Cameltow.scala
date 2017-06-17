@@ -46,9 +46,9 @@ class Cameltow(private var features:Map[String, Feature]) extends Builder {
 
   private def featuresAsHandler:HttpHandler = {
     val root = handler.map(_.httpHandler).getOrElse(ResponseCodeHandler.HANDLE_404)
-    features.values.foldLeft(root)((a,b) => {
-      b.setNext(a)
-      b.httpHandler
+    features.values.foldRight(root)((a,b) => {
+      a.setNext(b)
+      a.httpHandler
     })
   }
 }
