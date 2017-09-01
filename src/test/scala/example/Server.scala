@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import io.undertow.websockets.core.{BufferedBinaryMessage, BufferedTextMessage, WebSocketChannel}
 import se.chimps.cameltow.Cameltow
 import se.chimps.cameltow.framework.handlers._
-import se.chimps.cameltow.framework.responsebuilders.{BadRequest, Ok, Error => FiveHundred}
+import se.chimps.cameltow.framework.responsebuilders.{BadRequest, Ok, Redirect, Error => FiveHundred}
 import se.chimps.cameltow.framework.{Form, FormItem, Response, Text}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -36,6 +36,9 @@ object Server extends App {
         </div>
         <div>
           <a href="/static/">Static folder</a>
+        </div>
+        <div>
+          <a href="/cookie">Cookies</a>
         </div>
       </body>
     </html>
@@ -81,6 +84,47 @@ object Server extends App {
     }
 
     override def onFullCloseMessage(channel: WebSocketChannel, message: BufferedBinaryMessage): Unit = {}
+  }))
+
+  val cookieBody = <html>
+    <head>
+      <title>Read cookie</title>
+    </head>
+    <body>
+      <div>Cookie contains: %cookie%</div>
+      <form method="post" action="/cookie">
+        <div>
+          <input type="text" name="text" />
+        </div>
+        <div>
+          <button type="submit">Write cookie</button>
+          <a href="/clear">Clear cookie</a>
+        </div>
+      </form>
+    </body>
+  </html>
+
+  routes.GET("/cookie", Action.sync(req => {
+    val value = req.cookie("text").getOrElse("")
+    val html = cookieBody.toString.replace("%cookie%", value)
+
+    Ok.html(html)
+  }))
+
+  routes.POST("/cookie", Action.sync(req => {
+    req.body match {
+      case Form(form) => {
+        form("text").head match {
+          case FormItem(value) => Redirect("/cookie").withCookie("text", value)
+          case _ => FiveHundred.html("Form post failed.")
+        }
+      }
+      case _ => FiveHundred.html("Form was not form-encoded.")
+    }
+  }))
+
+  routes.GET("/clear", Action.sync(req => {
+    Redirect("/cookie").withClearCookie("text")
   }))
 
   val sub = routes.subroute("/hello")

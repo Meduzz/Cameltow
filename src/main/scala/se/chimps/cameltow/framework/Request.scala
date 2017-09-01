@@ -25,6 +25,13 @@ class Request(val exchange:HttpServerExchange) {
   }
   def charset:String = exchange.getRequestCharset
   def header(name:String):Option[String] = headerAll(name).headOption
+  def cookie(name:String):Option[String] = {
+    if (exchange.getRequestCookies != null && exchange.getRequestCookies.containsKey(name)) {
+      Some(exchange.getRequestCookies.get(name).getValue)
+    } else {
+      None
+    }
+  }
   def query(name:String):Option[String] = queryAll(name).headOption
   def queryAll(name:String):Seq[String] = {
     if (exchange.getQueryParameters.containsKey(name)) {
