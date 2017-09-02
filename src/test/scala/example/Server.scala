@@ -4,6 +4,8 @@ import java.util.concurrent.TimeUnit
 
 import io.undertow.websockets.core.{BufferedBinaryMessage, BufferedTextMessage, WebSocketChannel}
 import se.chimps.cameltow.Cameltow
+import se.chimps.cameltow.framework.datapoints.Ip
+import se.chimps.cameltow.framework.feaures.RequestDataToHeaders
 import se.chimps.cameltow.framework.handlers._
 import se.chimps.cameltow.framework.responsebuilders.{BadRequest, Ok, Redirect, Error => FiveHundred}
 import se.chimps.cameltow.framework.{Form, FormItem, Response, Text}
@@ -39,6 +41,9 @@ object Server extends App {
         </div>
         <div>
           <a href="/cookie">Cookies</a>
+        </div>
+        <div>
+          <a href="/ip">Ip</a>
         </div>
       </body>
     </html>
@@ -127,11 +132,23 @@ object Server extends App {
     Redirect("/cookie").withClearCookie("text")
   }))
 
+  routes.GET("/ip", Action.sync(req => {
+    val ip = req.header("x-request-ip") match {
+      case Some(anIp) => anIp
+      case None => ""
+    }
+
+    Ok.html(ip)
+  }))
+
   val sub = routes.subroute("/hello")
 
   sub.GET("/world", Action.sync(req => Ok(Text("Hello world!"))))
 
+  val ipDataPoint = Ip("x-request-ip")
+
   val server = Cameltow.defaults()
+    .activate(RequestDataToHeaders(Seq(ipDataPoint)))
     .handler(routes.handler)
     .listen()
 
