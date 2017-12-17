@@ -1,12 +1,12 @@
 name := "Cameltow"
 
-version := "2.0-beta12"
+version := "2.0-beta13"
 
 organization := "se.chimps.cameltow"
 
 credentials += Credentials(Path.userHome / ".ivy2" / ".cameltow")
 
-publishTo := Some("se.chimps.cameltow" at "http://yamr.kodiak.se/maven")
+publishTo := Some("se.chimps.cameltow" at "https://yamr.kodiak.se/maven")
 
 publishArtifact in (Compile, packageDoc) := false
 

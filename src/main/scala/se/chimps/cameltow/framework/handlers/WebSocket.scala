@@ -14,7 +14,8 @@ object WebSocket {
 
 class WebSocket(val delegate:WebSocketListenerDelegate) extends Handler {
   override def httpHandler: HttpHandler = new WebSocketProtocolHandshakeHandler(new WebSocketCallback {
-    override def onConnect(exchange: WebSocketHttpExchange, channel: WebSocketChannel) = {
+    override def onConnect(exchange: WebSocketHttpExchange, channel: WebSocketChannel):Unit = {
+      delegate.setChannel(channel)
       channel.getReceiveSetter.set(WebSocketListener(delegate))
       channel.resumeReceives()
     }
@@ -47,6 +48,8 @@ class WebSocketListener(delegate:WebSocketListenerDelegate) extends AbstractRece
 }
 
 trait WebSocketListenerDelegate {
+  private var channel:WebSocketChannel = _
+
   def onError(channel: WebSocketChannel, error: Throwable): Unit
   def onFullTextMessage(channel: WebSocketChannel, message: BufferedTextMessage): Unit
   def onFullBinaryMessage(channel: WebSocketChannel, message: BufferedBinaryMessage): Unit
@@ -54,4 +57,7 @@ trait WebSocketListenerDelegate {
 
   def text(text:String, channel:WebSocketChannel):Unit = WebSockets.sendText(text, channel, null)
   def binary(bytes:Array[Byte], channel:WebSocketChannel):Unit = WebSockets.sendBinary(ByteBuffer.wrap(bytes), channel, null)
+
+  def setChannel(c:WebSocketChannel):Unit = channel = c
+  def getChannel():WebSocketChannel = channel
 }
