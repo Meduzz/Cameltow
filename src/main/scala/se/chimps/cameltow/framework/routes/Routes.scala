@@ -34,7 +34,7 @@ trait Routes {
     r
   }
 
-  def addRoute(method:String, url:String, handler:Handler):Unit = {
+  protected def addRoute(method:String, url:String, handler:Handler):Unit = {
     val (regex, params) = regexify(url)
     val route = Route(url, regex, params, method, handler)
 
@@ -75,29 +75,27 @@ trait Routes {
       var paramNames = Seq[String]()
       val r2 = ":([a-zA-Z0-9]*|[a-zA-Z0-9]*(.*))".r
 
-      val newItems = url.substring(1).split("/").map(u => {
-        u match {
-          case r2(paramName, regex) => {
-            val index = paramName.indexOf("(")
-            val name  = if (index != -1) {
-              paramName.substring(0, index)
-            } else {
-              paramName
-            }
-
-            paramNames = paramNames ++ Seq(name)
-            if (regex != null) {
-              regex
-            } else {
-              "([a-zA-Z0-9]+)"
-            }
+      val newItems = url.substring(1).split("/").map {
+        case r2(paramName, regex) => {
+          val index = paramName.indexOf("(")
+          val name = if (index != -1) {
+            paramName.substring(0, index)
+          } else {
+            paramName
           }
-          case r2(name) => {
+
+          paramNames = paramNames ++ Seq(name)
+          if (regex != null) {
+            regex
+          } else {
             "([a-zA-Z0-9]+)"
           }
-          case _ => u
         }
-      })
+        case r2(name) => {
+          "([a-zA-Z0-9]+)"
+        }
+        case u => u
+      }
 
       (s"/${newItems.mkString("/")}".r, paramNames)
     } else {
@@ -105,7 +103,7 @@ trait Routes {
     }
   }
 
-  def append(path:String):String = {
+  protected def append(path:String):String = {
     if (base.length > 1) {
       base ++ path
     } else {
