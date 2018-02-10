@@ -1,9 +1,10 @@
 package se.chimps.cameltow
 
 import io.undertow.Undertow
+import io.undertow.Undertow.{Builder => UndertowBuilder}
 import io.undertow.server.HttpHandler
 import io.undertow.server.handlers.ResponseCodeHandler
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 import se.chimps.cameltow.framework.feaures.{GracefulShutdown, ParseForms, RequestLogging}
 import se.chimps.cameltow.framework.handlers.VirtualHosts
 import se.chimps.cameltow.framework.routes.{Routes, RoutingImpl}
@@ -14,13 +15,13 @@ object Cameltow {
   def virtualHosts():VirtualHosts = VirtualHosts()
   def defaults(appName:String = "default"):Builder = {
     val defaults = Map("GracefulShutdown" -> GracefulShutdown(), "RequestLogging" -> RequestLogging(appName), "ParseForms" -> ParseForms())
-    new Cameltow(defaults)
+    new Cameltow(defaults, appName)
   }
-  def blank():Builder = new Cameltow(Map())
+  def blank(appName:String = "default"):Builder = new Cameltow(Map(), appName)
 }
 
-class Cameltow(private var features:Map[String, Feature]) extends Builder {
-  val log = LoggerFactory.getLogger("cameltow")
+class Cameltow(private var features:Map[String, Feature], val name:String) extends Builder {
+  val log:Logger = LoggerFactory.getLogger(s"$name.cameltow")
 
   private var handler:Option[Handler] = None
 
@@ -58,39 +59,3 @@ trait Builder {
   def listen(port:Int = 8080, host:String = "0.0.0.0"):Undertow
   def activate(feature:Feature):Builder
 }
-
-/*
-  I want to have both that implementing a single method are enough, and the ability to go all
-  in with routes incl route groups like express & gin.
-
-  val routes = Cameltow.routes()
-
-  routes.get(/, Handler)
-  routes.get(/static/, Static.dir|file|classpath(/assets)) // funky shorthand solution to a semi complex problem
-  routes.get(/secret,Authorize(delegate)(Cached(Action))) // this type of chaining would be awesome!.. but also awfully close to feature creep.
-
-  Action((Request)=>Future[Response])
-
-  With the action defined as request => Future[response], writing middleware/filters are as easy
-  as composing methods.
-
-  val server = Cameltow.listen(port, host = 0.0.0.0)
-  server.stop()
-
-  Cameltow.activate(WS)
-  Cameltow.activate(HTTP2)
-  Cameltow.activate(Undertow.featureX)
-  Cameltow.activate(Undertow.100accept(max-size) // <- must generate a predicate, which are sort of painful.
-
-  val req = Request()
-  val pathParam = req.path(name) // might be merged with query due to (PathTemplateHandler.rewriteQueryParameters)
-  val cookieParam = req.cookie(name):Seq[String]
-  val queryParam = req.query(name):Seq[String]
-  val headerParam = req.header(name)
-  val body = req.body
-
-  trait RequestBody
-  Form(kv:Map[String, Seq[String]]) extends Body
-  Encoded(bytes:Array[Byte]) extends Body
-  Stream(chunks:Queue[Array[Byte]]) extends Body
- */
