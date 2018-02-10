@@ -1,8 +1,11 @@
 package se.chimps.cameltow.framework
 
+import java.util.function.Consumer
+
 import io.undertow.io.Receiver.{FullBytesCallback, PartialBytesCallback}
 import io.undertow.server.HttpServerExchange
 import io.undertow.server.handlers.form.FormDataParser
+import io.undertow.util.HttpString
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -46,6 +49,20 @@ class Request(val exchange:HttpServerExchange) {
     } else {
       Seq()
     }
+  }
+  def headers():Map[String, String] = {
+    val keys = exchange.getRequestHeaders.getHeaderNames.iterator()
+    var headers = Map[String, String]()
+
+    keys.forEachRemaining(new Consumer[HttpString] {
+      override def accept(t: HttpString): Unit = {
+        val key = t.toString
+        val value = exchange.getRequestHeaders.get(t).toArray.mkString(", ")
+        headers = headers ++ Map(key -> value)
+      }
+    })
+
+    headers
   }
   def body:RequestBody = {
     if (exchange.getAttachment(FormDataParser.FORM_DATA) != null) {
