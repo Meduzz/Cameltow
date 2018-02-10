@@ -61,6 +61,7 @@ case class Response(code:Int, headers:Map[String, String] = Map(), cookies:Map[S
         t.contentType.map(ct => exchange.getResponseHeaders.put(Headers.CONTENT_TYPE, ct))
         exchange.getResponseSender.send(ByteBuffer.wrap(t()))
       }
+      case Some(_) =>
       case None =>
     }
   }

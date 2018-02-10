@@ -1,8 +1,12 @@
 name := "Cameltow"
 
-version := "2.0-beta13"
+version := "2.0-beta14"
 
 organization := "se.chimps.cameltow"
+
+scalaVersion := "2.12.4"
+
+crossScalaVersions := Seq("2.11.12", "2.12.4")
 
 credentials += Credentials(Path.userHome / ".ivy2" / ".cameltow")
 
@@ -10,11 +14,9 @@ publishTo := Some("se.chimps.cameltow" at "https://yamr.kodiak.se/maven")
 
 publishArtifact in (Compile, packageDoc) := false
 
-scalaVersion := "2.11.8"
+libraryDependencies += "io.undertow" % "undertow-servlet" % "1.4.22.Final"
 
-libraryDependencies += "io.undertow" % "undertow-servlet" % "1.3.27.Final"
-
-libraryDependencies += "io.undertow" % "undertow-core" % "1.3.27.Final"
+libraryDependencies += "io.undertow" % "undertow-core" % "1.4.22.Final"
 
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.1"
 

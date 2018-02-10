@@ -12,6 +12,8 @@
 
 ## Other
 
-https
-http2
-set io/worker threads
+Come up with a way to test stuff...
+Allow https
+Allow http2
+Allow to set io/worker threads
+Error logging should prolly work differently, more like the request logging. 
