@@ -8,4 +8,7 @@ object Created {
   def text(text:String) = Response(201, body = Some(Text(text)))
   def json(json:String) = Response(201, body = Some(Json(json)))
   def html(html:String) = Response(201, body = Some(Html(html)))
+  def text(bytes:Array[Byte]) = Response(201, body = Some(TextBytes(bytes)))
+  def json(bytes:Array[Byte]) = Response(201, body = Some(JsonBytes(bytes)))
+  def html(bytes:Array[Byte]) = Response(201, body = Some(HtmlBytes(bytes)))
 }

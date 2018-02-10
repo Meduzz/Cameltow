@@ -26,7 +26,7 @@ case class Response(code:Int, headers:Map[String, String] = Map(), cookies:Map[S
   def withClearCookie(name:String):Response =
     copy(clearCookies = clearCookies ++ Seq(name))
 
-  private[cameltow] def write(exchange:HttpServerExchange)(implicit ec:ExecutionContext) = {
+  private[cameltow] def write(exchange:HttpServerExchange)(implicit ec:ExecutionContext): Unit = {
     exchange.setStatusCode(code)
 
     headers.foreach(kv => {
