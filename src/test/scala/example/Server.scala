@@ -1,5 +1,6 @@
 package example
 
+import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 import io.undertow.websockets.core.{BufferedBinaryMessage, BufferedTextMessage, WebSocketChannel}
@@ -44,6 +45,9 @@ object Server extends App {
         </div>
         <div>
           <a href="/ip">Ip</a>
+        </div>
+        <div>
+          <a href="/ws">WS</a>
         </div>
       </body>
     </html>
@@ -140,6 +144,8 @@ object Server extends App {
 
     Ok.html(ip)
   }))
+
+  routes.GET("/ws", Static.file(Paths.get(getClass.getResource("/ws.html").toURI), "text/html"))
 
   val sub = routes.subroute("/hello")
 

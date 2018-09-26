@@ -1,11 +1,12 @@
 package se.chimps.cameltow.framework.handlers
 
-import java.io.File
-import java.nio.file.Path
+import java.nio.ByteBuffer
+import java.nio.file.{Files, LinkOption, Path}
 
-import io.undertow.server.HttpHandler
 import io.undertow.server.handlers.cache.DirectBufferCache
-import io.undertow.server.handlers.resource.{CachingResourceManager, ClassPathResourceManager, FileResourceManager, PathResourceManager, ResourceManager, ResourceHandler => UndertowResourceHandler}
+import io.undertow.server.handlers.resource.{CachingResourceManager, ClassPathResourceManager, PathResourceManager, ResourceManager, ResourceHandler => UndertowResourceHandler}
+import io.undertow.server.{HttpHandler, HttpServerExchange}
+import io.undertow.util.HttpString
 import org.xnio.BufferAllocator
 import se.chimps.cameltow.framework.Handler
 
@@ -13,15 +14,23 @@ import se.chimps.cameltow.framework.Handler
   * Static Handler-companion with reasonable defaults.
   */
 object Static {
-  def file(file:File):Handler = new StaticFileHandler(file)
+  def file(file:Path, contentType:String):Handler = new StaticFileHandler(file, contentType)
   def path(path:Path, welcomeFiles:Seq[String] = Seq("index.html"), listDirectory:Boolean = false, caching:Option[Caching] = None):Handler = new StaticPathHandler(path, welcomeFiles, listDirectory, caching)
   def classpath(prefix:String = "", welcomeFiles:Seq[String] = Seq("index.html"), listDirectory:Boolean = false, caching:Option[Caching] = None):Handler = new ClasspathHandler(prefix, welcomeFiles, listDirectory, caching)
 }
 
-class StaticFileHandler(val file:File) extends Handler {
-  override def httpHandler:UndertowResourceHandler = {
-    val manager = new FileResourceManager(file, 1024L)
-    ResourceHandler(manager)
+class StaticFileHandler(val file:Path, contentType:String) extends Handler {
+  override def httpHandler:HttpHandler = new HttpHandler {
+    override def handleRequest(exchange: HttpServerExchange): Unit = {
+      if (Files.exists(file, LinkOption.NOFOLLOW_LINKS)) {
+        val content = Files.readAllBytes(file)
+        exchange.setStatusCode(200)
+        exchange.getResponseHeaders.put(HttpString.tryFromString("Content-Type"), contentType)
+        exchange.getResponseSender.send(ByteBuffer.wrap(content))
+      } else {
+        exchange.setStatusCode(404)
+      }
+    }
   }
 }
 
