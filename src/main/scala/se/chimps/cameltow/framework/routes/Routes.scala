@@ -4,6 +4,7 @@ import io.undertow.server.{HttpHandler, HttpServerExchange}
 import org.slf4j.LoggerFactory
 import se.chimps.cameltow.framework.Handler
 import se.chimps.cameltow.framework.routes.routing.Tree
+import se.chimps.cameltow.framework.util.Methods
 
 import scala.util.matching.Regex
 
@@ -15,12 +16,13 @@ trait Routes {
 
   def base:String
 
-  def GET(route:String, handler:Handler):Unit = addRoute("GET", route, handler)
-  def POST(route:String, handler: Handler):Unit = addRoute("POST", route, handler)
-  def PUT(route:String, handler: Handler):Unit = addRoute("PUT", route, handler)
-  def DELETE(route:String, handler: Handler):Unit = addRoute("DELETE", route, handler)
-  def HEAD(route:String, handler: Handler):Unit = addRoute("HEAD", route, handler)
-  def PATCH(route:String, handler: Handler):Unit = addRoute("PATCH", route, handler)
+  def GET(route:String, handler:Handler):Unit = addRoute(Methods.GET, route, handler)
+  def POST(route:String, handler: Handler):Unit = addRoute(Methods.POST, route, handler)
+  def PUT(route:String, handler: Handler):Unit = addRoute(Methods.PUT, route, handler)
+  def DELETE(route:String, handler: Handler):Unit = addRoute(Methods.DELETE, route, handler)
+  def HEAD(route:String, handler: Handler):Unit = addRoute(Methods.HEAD, route, handler)
+  def PATCH(route:String, handler: Handler):Unit = addRoute(Methods.PATCH, route, handler)
+  def OPTIONS(route:String, handler:Handler):Unit = addRoute(Methods.OPTIONS, route, handler)
 
   def subroute(path:String):Routes = {
     val r = new RoutingImpl(path)
@@ -34,7 +36,7 @@ trait Routes {
     r
   }
 
-  protected def addRoute(method:String, url:String, handler:Handler):Unit = {
+  def addRoute(method:String, url:String, handler:Handler):Unit = {
     val (regex, params) = regexify(url)
     val route = Route(url, regex, params, method, handler)
 
