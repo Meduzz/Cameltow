@@ -8,7 +8,7 @@ import se.chimps.cameltow.Cameltow
 import se.chimps.cameltow.framework.datapoints.Ip
 import se.chimps.cameltow.framework.feaures.RequestDataToHeaders
 import se.chimps.cameltow.framework.handlers._
-import se.chimps.cameltow.framework.responsebuilders.{BadRequest, Ok, Redirect, Error => FiveHundred}
+import se.chimps.cameltow.framework.responsebuilders.{BadRequest, Ok, Redirect, Unauthorized, Error => FiveHundred}
 import se.chimps.cameltow.framework.{Form, FormItem, Response, Text}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -48,6 +48,9 @@ object Server extends App {
         </div>
         <div>
           <a href="/ws">WS</a>
+        </div>
+        <div>
+          <a href="/secret">Basic authentication</a>
         </div>
       </body>
     </html>
@@ -146,6 +149,13 @@ object Server extends App {
   }))
 
   routes.GET("/ws", Static.file(Paths.get(getClass.getResource("/ws.html").toURI), "text/html"))
+
+  routes.GET("/secret", Action.sync(req => {
+    req.authorization() match {
+      case Some((user, pass)) => Ok.html(s"You managed to enter $user & $pass!")
+      case None => Unauthorized.html("You failed to enter any username and secret!", "secret/area")
+    }
+  }))
 
   val sub = routes.subroute("/hello")
 

@@ -1,5 +1,6 @@
 package se.chimps.cameltow.framework
 
+import java.util.Base64
 import java.util.function.Consumer
 
 import io.undertow.io.Receiver.{FullBytesCallback, PartialBytesCallback}
@@ -63,6 +64,22 @@ class Request(val exchange:HttpServerExchange) {
     })
 
     headers
+  }
+  def authorization():Option[(String, String)] = {
+    if (exchange.getRequestHeaders.contains("Authorization")) {
+      val values = exchange.getRequestHeaders.getFirst("Authorization")
+      val auth = if (values.contains(" ")) {
+        values.split(" ")(1)
+      } else {
+        values
+      }
+
+      val Array(user, pass) = new String(Base64.getDecoder.decode(auth), "utf-8").split(":")
+
+      Some((user, pass))
+    } else {
+      None
+    }
   }
   def body:RequestBody = {
     if (exchange.getAttachment(FormDataParser.FORM_DATA) != null) {
