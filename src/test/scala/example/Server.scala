@@ -86,7 +86,7 @@ object Server extends App {
     }
   }))
 
-  routes.GET("/chat", WebSocket(new WebSocketListenerDelegate {
+  routes.GET("/chat", WebSocket((c: WebSocketChannel, r: WebSocketRequest) => new WebSocketListenerDelegate(c, r) {
     override def onError(channel: WebSocketChannel, error: Throwable): Unit = {}
 
     override def onFullBinaryMessage(channel: WebSocketChannel, message: BufferedBinaryMessage): Unit = {}

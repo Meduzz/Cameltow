@@ -9,13 +9,15 @@ import io.undertow.websockets.{WebSocketConnectionCallback, WebSocketProtocolHan
 import se.chimps.cameltow.framework.Handler
 
 object WebSocket {
-  def apply(delegate:WebSocketListenerDelegate):WebSocket = new WebSocket(delegate)
+  def apply(delegate:WebSocketListenerDelegateFactory):WebSocket = new WebSocket(delegate)
 }
 
-class WebSocket(val delegate:WebSocketListenerDelegate) extends Handler {
+class WebSocket(val factor:WebSocketListenerDelegateFactory) extends Handler {
   override def httpHandler: HttpHandler = new WebSocketProtocolHandshakeHandler(new WebSocketCallback {
     override def onConnect(exchange: WebSocketHttpExchange, channel: WebSocketChannel):Unit = {
-      delegate.setChannel(channel)
+      val req = new WebSocketRequest(exchange)
+      val delegate = factor.delegate(channel, req)
+
       channel.getReceiveSetter.set(WebSocketListener(delegate))
       channel.resumeReceives()
     }
@@ -23,6 +25,31 @@ class WebSocket(val delegate:WebSocketListenerDelegate) extends Handler {
 }
 
 trait WebSocketCallback extends WebSocketConnectionCallback {
+}
+
+class WebSocketRequest(exchange:WebSocketHttpExchange) {
+
+  def query(name:String):Option[String] = {
+    exchange.getQueryString
+      .split("&")
+      .map(kv => {
+        val pair = kv.split("=")
+
+        if (pair.length == 2) {
+          (pair(0), pair(1))
+        } else {
+          (pair(0), "")
+        }
+      }).toMap
+      .get(name)
+  }
+
+  def header(name:String):Option[String] = Option(exchange.getRequestHeader(name))
+
+}
+
+trait WebSocketListenerDelegateFactory {
+  def delegate(channel:WebSocketChannel, req:WebSocketRequest):WebSocketListenerDelegate
 }
 
 object WebSocketListener {
@@ -47,9 +74,7 @@ class WebSocketListener(delegate:WebSocketListenerDelegate) extends AbstractRece
   }
 }
 
-trait WebSocketListenerDelegate {
-  private var channel:WebSocketChannel = _
-
+abstract class WebSocketListenerDelegate(channel:WebSocketChannel, request:WebSocketRequest) {
   def onError(channel: WebSocketChannel, error: Throwable): Unit
   def onFullTextMessage(channel: WebSocketChannel, message: BufferedTextMessage): Unit
   def onFullBinaryMessage(channel: WebSocketChannel, message: BufferedBinaryMessage): Unit
@@ -57,7 +82,4 @@ trait WebSocketListenerDelegate {
 
   def text(text:String, channel:WebSocketChannel):Unit = WebSockets.sendText(text, channel, null)
   def binary(bytes:Array[Byte], channel:WebSocketChannel):Unit = WebSockets.sendBinary(ByteBuffer.wrap(bytes), channel, null)
-
-  def setChannel(c:WebSocketChannel):Unit = channel = c
-  def getChannel():WebSocketChannel = channel
 }
